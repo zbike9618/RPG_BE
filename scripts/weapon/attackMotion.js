@@ -35,7 +35,7 @@ export function attackMotion(player, tags) {
         const results = Inside.getSetPosition(player, swordAttackRange);
 
         const loc = util.getForwardPosition(player, 0, 1, 3);
-        player.dimension.spawnParticle("ly:sweep", loc);
+        player.dimension.spawnParticle("rpg:sweep", loc);
         player.playSound("player.attack.sweep");
 
         for (const res of results) {
@@ -66,7 +66,7 @@ export function attackMotion(player, tags) {
         player.playSound("mob.zombie.wood", { location: player.location, volume: 0.1, pitch: 1 });
         player.playSound("game.player.attack.strong", { location: player.location, volume: 10, pitch: 1 });
         const loc = util.getForwardPosition(player, 0, 1, 3);
-        player.dimension.spawnParticle("ly:impact", loc);
+        player.dimension.spawnParticle("rpg:impact", loc);
         for (const res of results) {
             Inside.apply(res.pos, res.scale, player, damaged, (p) => {
                 p.applyDamage(4, { cause: server.EntityDamageCause.none, damagingEntity: player });

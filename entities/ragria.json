@@ -2,7 +2,7 @@
   "format_version": "1.16.210",
   "minecraft:entity": {
     "description": {
-      "identifier": "ly:ragria",
+      "identifier": "rpg:ragria",
       "is_spawnable": true,
       "is_summonable": true,
       "is_experimental": false

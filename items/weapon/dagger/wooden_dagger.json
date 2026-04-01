@@ -2,7 +2,7 @@
     "format_version": "1.21.10",
     "minecraft:item": {
         "description": {
-            "identifier": "ly:wooden_dagger"
+            "identifier": "rpg:wooden_dagger"
         },
         "components": {
             "minecraft:can_destroy_in_creative": false,
@@ -11,7 +11,7 @@
             "minecraft:icon": "wooden_dagger",
             "minecraft:damage": 3,
             "minecraft:cooldown": {
-                "category": "ly:wooden_dagger",
+                "category": "rpg:wooden_dagger",
                 "duration": 0.5
             },
             "minecraft:tags": {
