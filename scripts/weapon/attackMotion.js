@@ -12,7 +12,11 @@ const swordAttackRange = [
 ]
 const spearAttackRange = [
 
-    { x: 0, y: 1.5, z: 5.0, scale: 1, fromSelf: true },
+    { x: 0, y: 1.5, z: 5.0, scale: 1, fromSelf: false },
+    { x: 0, y: 1.5, z: 4.0, scale: 1, fromSelf: false },
+    { x: 0, y: 1.5, z: 3.0, scale: 1, fromSelf: false },
+    { x: 0, y: 1.5, z: 2.0, scale: 1, fromSelf: false },
+    { x: 0, y: 1.5, z: 1.0, scale: 1, fromSelf: false },
 ]
 const axeAttackRange = [
     { x: 0, y: 1.0, z: 3, scale: 3, fromSelf: false },
