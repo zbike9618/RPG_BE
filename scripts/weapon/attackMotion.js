@@ -4,19 +4,19 @@ import util from "../util";
 const { world, system } = server;
 
 const swordAttackRange = [
-    { x: -2.5, y: 1.0, z: 3.5, scale: 1, fromSelf: true },
-    { x: -1.8, y: 1.0, z: 4, scale: 1, fromSelf: true },
-    { x: 0, y: 1.0, z: 4, scale: 1, fromSelf: true },
-    { x: 1.8, y: 1.0, z: 4, scale: 1, fromSelf: true },
-    { x: 2.5, y: 1.0, z: 3.5, scale: 1, fromSelf: true },
+    //{ x: -2.5, y: 1.0, z: 3.5, scale: 1, fromSelf: true },
+    { x: -1, y: 1.0, z: 2, scale: 0.5, fromSelf: true },
+    { x: 0, y: 1.0, z: 3, scale: 1, fromSelf: true },
+    { x: 1, y: 1.0, z: 2, scale: 0.5, fromSelf: true },
+    //{ x: 2.5, y: 1.0, z: 3.5, scale: 1, fromSelf: true },
 ]
 const spearAttackRange = [
 
-    { x: 0, y: 1.5, z: 5.0, scale: 1, fromSelf: false },
-    { x: 0, y: 1.5, z: 4.0, scale: 1, fromSelf: false },
-    { x: 0, y: 1.5, z: 3.0, scale: 1, fromSelf: false },
-    { x: 0, y: 1.5, z: 2.0, scale: 1, fromSelf: false },
-    { x: 0, y: 1.5, z: 1.0, scale: 1, fromSelf: false },
+    { x: 0, y: 1.5, z: 5.0, scale: 0.3, fromSelf: false },
+    { x: 0, y: 1.5, z: 4.0, scale: 0.3, fromSelf: false },
+    { x: 0, y: 1.5, z: 3.0, scale: 0.3, fromSelf: false },
+    { x: 0, y: 1.5, z: 2.0, scale: 0.3, fromSelf: false },
+    { x: 0, y: 1.5, z: 1.0, scale: 0.3, fromSelf: false },
 ]
 const axeAttackRange = [
     { x: 0, y: 1.0, z: 3, scale: 3, fromSelf: false },
@@ -35,7 +35,7 @@ export function attackMotion(player, tags) {
         const results = Inside.getSetPosition(player, swordAttackRange);
 
         const loc = util.getForwardPosition(player, 0, 1, 3);
-        player.dimension.spawnParticle("ly:sweep", loc);
+        player.dimension.spawnParticle("rpg:sweep", loc);
         player.playSound("player.attack.sweep");
 
         for (const res of results) {
@@ -66,7 +66,7 @@ export function attackMotion(player, tags) {
         player.playSound("mob.zombie.wood", { location: player.location, volume: 0.1, pitch: 1 });
         player.playSound("game.player.attack.strong", { location: player.location, volume: 10, pitch: 1 });
         const loc = util.getForwardPosition(player, 0, 1, 3);
-        player.dimension.spawnParticle("ly:impact", loc);
+        player.dimension.spawnParticle("rpg:impact", loc);
         for (const res of results) {
             Inside.apply(res.pos, res.scale, player, damaged, (p) => {
                 p.applyDamage(4, { cause: server.EntityDamageCause.none, damagingEntity: player });

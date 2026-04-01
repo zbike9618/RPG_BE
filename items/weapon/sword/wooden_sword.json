@@ -2,7 +2,7 @@
     "format_version": "1.21.10",
     "minecraft:item": {
         "description": {
-            "identifier": "ly:wooden_sword"
+            "identifier": "rpg:wooden_sword"
         },
         "components": {
             "minecraft:can_destroy_in_creative": false,
@@ -11,7 +11,7 @@
             "minecraft:icon": "wooden_sword",
             "minecraft:damage": 3,
             "minecraft:cooldown": {
-                "category": "ly:wooden_sword",
+                "category": "rpg:wooden_sword",
                 "duration": 0.5
             },
             "minecraft:tags": {

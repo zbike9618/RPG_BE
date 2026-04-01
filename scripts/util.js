@@ -106,5 +106,46 @@ export default class {
             }
         });
     }
-
+    static score = {
+        /**
+         * エンティティのスコアに値を加算する
+         * @param {import("@minecraft/server").Entity} entity 
+         * @param {string} objectiveId 
+         * @param {number} value 
+         */
+        add(entity, objectiveId, value) {
+            const objective = world.scoreboard.getObjective(objectiveId);
+            if (!objective) {
+                world.scoreboard.addObjective(objectiveId);
+            }
+            const score = objective.getScore(entity) ?? 0;
+            objective.setScore(entity, score + value);
+        },
+        /**
+         * エンティティのスコアに値を設定する
+         * @param {import("@minecraft/server").Entity} entity 
+         * @param {string} objectiveId 
+         * @param {number} value 
+         */
+        set(entity, objectiveId, value = undefined) {
+            const objective = world.scoreboard.getObjective(objectiveId);
+            if (!objective) {
+                world.scoreboard.addObjective(objectiveId);
+            }
+            objective.setScore(entity, value);
+        },
+        /**
+         * エンティティのスコアを取得する
+         * @param {import("@minecraft/server").Entity} entity 
+         * @param {string} objectiveId 
+         * @returns {number}
+         */
+        get(entity, objectiveId) {
+            const objective = world.scoreboard.getObjective(objectiveId);
+            if (!objective) {
+                return undefined;
+            }
+            return objective.getScore(entity);
+        }
+    };
 }

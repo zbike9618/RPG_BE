@@ -7,20 +7,20 @@
                 "groups": [
                     {
                         "group_identifier": {
-                            "icon": "ly:wooden_sword",
-                            "name": "ly:itemGroup.name.sword"
+                            "icon": "rpg:wooden_sword",
+                            "name": "rpg:itemGroup.name.sword"
                         },
                         "items": [
-                            "ly:wooden_sword"
+                            "rpg:wooden_sword"
                         ]
                     },
                     {
                         "group_identifier": {
-                            "icon": "ly:wooden_spear",
-                            "name": "ly:itemGroup.name.spear"
+                            "icon": "rpg:wooden_spear",
+                            "name": "rpg:itemGroup.name.spear"
                         },
                         "items": [
-                            "ly:wooden_spear"
+                            "rpg:wooden_spear"
                         ]
                     }
                 ]

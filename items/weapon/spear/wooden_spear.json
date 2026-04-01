@@ -2,7 +2,7 @@
     "format_version": "1.21.10",
     "minecraft:item": {
         "description": {
-            "identifier": "ly:wooden_spear"
+            "identifier": "rpg:wooden_spear"
         },
         "components": {
             "minecraft:can_destroy_in_creative": false,
@@ -11,7 +11,7 @@
             "minecraft:icon": "wooden_spear",
             "minecraft:damage": 3,
             "minecraft:cooldown": {
-                "category": "ly:wooden_spear",
+                "category": "rpg:wooden_spear",
                 "duration": 0.5
             },
             "minecraft:tags": {
