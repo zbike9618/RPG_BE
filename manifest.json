@@ -1,0 +1,60 @@
+{
+    "format_version": 2,
+    "header": {
+        "name": "Lyuseria-RPG version 1.0.0 alpha",
+        "description": "Lyuseria-RPG-Behavior",
+        "uuid": "22ae4ca5-bdba-4455-8b2e-257140870c71",
+        "version": [
+            1,
+            0,
+            0
+        ],
+        "min_engine_version": [
+            1,
+            20,
+            60
+        ]
+    },
+    "modules": [
+        {
+            "description": "data",
+            "type": "data",
+            "uuid": "abcec263-3d4c-4fd2-8892-98a326b4cce2",
+            "version": [
+                1,
+                0,
+                0
+            ]
+        },
+        {
+            "description": "",
+            "type": "script",
+            "language": "javascript",
+            "uuid": "516f4f95-2e03-4a7b-bbbe-12de0819ea98",
+            "entry": "scripts/main.js",
+            "version": [
+                1,
+                0,
+                0
+            ]
+        }
+    ],
+    "dependencies": [
+        {
+            "module_name": "@minecraft/server",
+            "version": "beta"
+        },
+        {
+            "module_name": "@minecraft/server-ui",
+            "version": "beta"
+        },
+        {
+            "uuid": "7472bb4c-8e6b-4b1e-a901-e68cda708f6f",
+            "version": [
+                1,
+                0,
+                0
+            ]
+        }
+    ]
+}

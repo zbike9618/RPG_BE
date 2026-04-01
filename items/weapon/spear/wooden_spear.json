@@ -1,0 +1,24 @@
+{
+    "format_version": "1.21.10",
+    "minecraft:item": {
+        "description": {
+            "identifier": "ly:wooden_spear"
+        },
+        "components": {
+            "minecraft:can_destroy_in_creative": false,
+            "minecraft:max_stack_size": 1,
+            "minecraft:hand_equipped": true,
+            "minecraft:icon": "wooden_spear",
+            "minecraft:damage": 3,
+            "minecraft:cooldown": {
+                "category": "ly:wooden_spear",
+                "duration": 0.5
+            },
+            "minecraft:tags": {
+                "tags": [
+                    "spear"
+                ]
+            }
+        }
+    }
+}
