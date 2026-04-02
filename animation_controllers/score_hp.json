@@ -1,0 +1,1300 @@
+﻿{
+  "format_version": "1.10.0",
+  "animation_controllers": {
+    "controller.animation.rpg.maxhp": {
+      "states": {
+        "default": {
+          "transitions": [
+            {
+              "health2": "query.scoreboard('rpg.maxhp_do') >= 0 && query.scoreboard('rpg.maxhp_do') <= 14"
+            },
+            {
+              "health3": "query.scoreboard('rpg.maxhp_do') >= 15 && query.scoreboard('rpg.maxhp_do') <= 19"
+            },
+            {
+              "health4": "query.scoreboard('rpg.maxhp_do') >= 20 && query.scoreboard('rpg.maxhp_do') <= 24"
+            },
+            {
+              "health5": "query.scoreboard('rpg.maxhp_do') >= 25 && query.scoreboard('rpg.maxhp_do') <= 29"
+            },
+            {
+              "health6": "query.scoreboard('rpg.maxhp_do') >= 30 && query.scoreboard('rpg.maxhp_do') <= 34"
+            },
+            {
+              "health7": "query.scoreboard('rpg.maxhp_do') >= 35 && query.scoreboard('rpg.maxhp_do') <= 39"
+            },
+            {
+              "health8": "query.scoreboard('rpg.maxhp_do') >= 40 && query.scoreboard('rpg.maxhp_do') <= 44"
+            },
+            {
+              "health9": "query.scoreboard('rpg.maxhp_do') >= 45 && query.scoreboard('rpg.maxhp_do') <= 49"
+            },
+            {
+              "health10": "query.scoreboard('rpg.maxhp_do') >= 50 && query.scoreboard('rpg.maxhp_do') <= 54"
+            },
+            {
+              "health11": "query.scoreboard('rpg.maxhp_do') >= 55 && query.scoreboard('rpg.maxhp_do') <= 59"
+            },
+            {
+              "health12": "query.scoreboard('rpg.maxhp_do') >= 60 && query.scoreboard('rpg.maxhp_do') <= 64"
+            },
+            {
+              "health13": "query.scoreboard('rpg.maxhp_do') >= 65 && query.scoreboard('rpg.maxhp_do') <= 69"
+            },
+            {
+              "health14": "query.scoreboard('rpg.maxhp_do') >= 70 && query.scoreboard('rpg.maxhp_do') <= 74"
+            },
+            {
+              "health15": "query.scoreboard('rpg.maxhp_do') >= 75 && query.scoreboard('rpg.maxhp_do') <= 79"
+            },
+            {
+              "health16": "query.scoreboard('rpg.maxhp_do') >= 80 && query.scoreboard('rpg.maxhp_do') <= 84"
+            },
+            {
+              "health17": "query.scoreboard('rpg.maxhp_do') >= 85 && query.scoreboard('rpg.maxhp_do') <= 89"
+            },
+            {
+              "health18": "query.scoreboard('rpg.maxhp_do') >= 90 && query.scoreboard('rpg.maxhp_do') <= 94"
+            },
+            {
+              "health19": "query.scoreboard('rpg.maxhp_do') >= 95 && query.scoreboard('rpg.maxhp_do') <= 99"
+            },
+            {
+              "health20": "query.scoreboard('rpg.maxhp_do') >= 100 && query.scoreboard('rpg.maxhp_do') <= 104"
+            },
+            {
+              "health21": "query.scoreboard('rpg.maxhp_do') >= 105 && query.scoreboard('rpg.maxhp_do') <= 109"
+            },
+            {
+              "health22": "query.scoreboard('rpg.maxhp_do') >= 110 && query.scoreboard('rpg.maxhp_do') <= 114"
+            },
+            {
+              "health23": "query.scoreboard('rpg.maxhp_do') >= 115 && query.scoreboard('rpg.maxhp_do') <= 119"
+            },
+            {
+              "health24": "query.scoreboard('rpg.maxhp_do') >= 120 && query.scoreboard('rpg.maxhp_do') <= 124"
+            },
+            {
+              "health25": "query.scoreboard('rpg.maxhp_do') >= 125 && query.scoreboard('rpg.maxhp_do') <= 129"
+            },
+            {
+              "health26": "query.scoreboard('rpg.maxhp_do') >= 130 && query.scoreboard('rpg.maxhp_do') <= 134"
+            },
+            {
+              "health27": "query.scoreboard('rpg.maxhp_do') >= 135 && query.scoreboard('rpg.maxhp_do') <= 139"
+            },
+            {
+              "health28": "query.scoreboard('rpg.maxhp_do') >= 140 && query.scoreboard('rpg.maxhp_do') <= 144"
+            },
+            {
+              "health29": "query.scoreboard('rpg.maxhp_do') >= 145 && query.scoreboard('rpg.maxhp_do') <= 149"
+            },
+            {
+              "health30": "query.scoreboard('rpg.maxhp_do') >= 150 && query.scoreboard('rpg.maxhp_do') <= 154"
+            },
+            {
+              "health31": "query.scoreboard('rpg.maxhp_do') >= 155 && query.scoreboard('rpg.maxhp_do') <= 159"
+            },
+            {
+              "health32": "query.scoreboard('rpg.maxhp_do') >= 160 && query.scoreboard('rpg.maxhp_do') <= 164"
+            },
+            {
+              "health33": "query.scoreboard('rpg.maxhp_do') >= 165 && query.scoreboard('rpg.maxhp_do') <= 169"
+            },
+            {
+              "health34": "query.scoreboard('rpg.maxhp_do') >= 170 && query.scoreboard('rpg.maxhp_do') <= 174"
+            },
+            {
+              "health35": "query.scoreboard('rpg.maxhp_do') >= 175 && query.scoreboard('rpg.maxhp_do') <= 179"
+            },
+            {
+              "health36": "query.scoreboard('rpg.maxhp_do') >= 180 && query.scoreboard('rpg.maxhp_do') <= 184"
+            },
+            {
+              "health37": "query.scoreboard('rpg.maxhp_do') >= 185 && query.scoreboard('rpg.maxhp_do') <= 189"
+            },
+            {
+              "health38": "query.scoreboard('rpg.maxhp_do') >= 190 && query.scoreboard('rpg.maxhp_do') <= 194"
+            },
+            {
+              "health39": "query.scoreboard('rpg.maxhp_do') >= 195 && query.scoreboard('rpg.maxhp_do') <= 199"
+            },
+            {
+              "health40": "query.scoreboard('rpg.maxhp_do') >= 200 && query.scoreboard('rpg.maxhp_do') <= 204"
+            },
+            {
+              "health41": "query.scoreboard('rpg.maxhp_do') >= 205 && query.scoreboard('rpg.maxhp_do') <= 209"
+            },
+            {
+              "health42": "query.scoreboard('rpg.maxhp_do') >= 210 && query.scoreboard('rpg.maxhp_do') <= 214"
+            },
+            {
+              "health43": "query.scoreboard('rpg.maxhp_do') >= 215 && query.scoreboard('rpg.maxhp_do') <= 219"
+            },
+            {
+              "health44": "query.scoreboard('rpg.maxhp_do') >= 220 && query.scoreboard('rpg.maxhp_do') <= 224"
+            },
+            {
+              "health45": "query.scoreboard('rpg.maxhp_do') >= 225 && query.scoreboard('rpg.maxhp_do') <= 229"
+            },
+            {
+              "health46": "query.scoreboard('rpg.maxhp_do') >= 230 && query.scoreboard('rpg.maxhp_do') <= 234"
+            },
+            {
+              "health47": "query.scoreboard('rpg.maxhp_do') >= 235 && query.scoreboard('rpg.maxhp_do') <= 239"
+            },
+            {
+              "health48": "query.scoreboard('rpg.maxhp_do') >= 240 && query.scoreboard('rpg.maxhp_do') <= 244"
+            },
+            {
+              "health49": "query.scoreboard('rpg.maxhp_do') >= 245 && query.scoreboard('rpg.maxhp_do') <= 249"
+            },
+            {
+              "health50": "query.scoreboard('rpg.maxhp_do') >= 250 && query.scoreboard('rpg.maxhp_do') <= 254"
+            },
+            {
+              "health51": "query.scoreboard('rpg.maxhp_do') >= 255 && query.scoreboard('rpg.maxhp_do') <= 259"
+            },
+            {
+              "health52": "query.scoreboard('rpg.maxhp_do') >= 260 && query.scoreboard('rpg.maxhp_do') <= 264"
+            },
+            {
+              "health53": "query.scoreboard('rpg.maxhp_do') >= 265 && query.scoreboard('rpg.maxhp_do') <= 269"
+            },
+            {
+              "health54": "query.scoreboard('rpg.maxhp_do') >= 270 && query.scoreboard('rpg.maxhp_do') <= 274"
+            },
+            {
+              "health55": "query.scoreboard('rpg.maxhp_do') >= 275 && query.scoreboard('rpg.maxhp_do') <= 279"
+            },
+            {
+              "health56": "query.scoreboard('rpg.maxhp_do') >= 280 && query.scoreboard('rpg.maxhp_do') <= 284"
+            },
+            {
+              "health57": "query.scoreboard('rpg.maxhp_do') >= 285 && query.scoreboard('rpg.maxhp_do') <= 289"
+            },
+            {
+              "health58": "query.scoreboard('rpg.maxhp_do') >= 290 && query.scoreboard('rpg.maxhp_do') <= 294"
+            },
+            {
+              "health59": "query.scoreboard('rpg.maxhp_do') >= 295 && query.scoreboard('rpg.maxhp_do') <= 299"
+            },
+            {
+              "health60": "query.scoreboard('rpg.maxhp_do') >= 300 && query.scoreboard('rpg.maxhp_do') <= 304"
+            },
+            {
+              "health61": "query.scoreboard('rpg.maxhp_do') >= 305 && query.scoreboard('rpg.maxhp_do') <= 309"
+            },
+            {
+              "health62": "query.scoreboard('rpg.maxhp_do') >= 310 && query.scoreboard('rpg.maxhp_do') <= 314"
+            },
+            {
+              "health63": "query.scoreboard('rpg.maxhp_do') >= 315 && query.scoreboard('rpg.maxhp_do') <= 319"
+            },
+            {
+              "health64": "query.scoreboard('rpg.maxhp_do') >= 320 && query.scoreboard('rpg.maxhp_do') <= 324"
+            },
+            {
+              "health65": "query.scoreboard('rpg.maxhp_do') >= 325 && query.scoreboard('rpg.maxhp_do') <= 329"
+            },
+            {
+              "health66": "query.scoreboard('rpg.maxhp_do') >= 330 && query.scoreboard('rpg.maxhp_do') <= 334"
+            },
+            {
+              "health67": "query.scoreboard('rpg.maxhp_do') >= 335 && query.scoreboard('rpg.maxhp_do') <= 339"
+            },
+            {
+              "health68": "query.scoreboard('rpg.maxhp_do') >= 340 && query.scoreboard('rpg.maxhp_do') <= 344"
+            },
+            {
+              "health69": "query.scoreboard('rpg.maxhp_do') >= 345 && query.scoreboard('rpg.maxhp_do') <= 349"
+            },
+            {
+              "health70": "query.scoreboard('rpg.maxhp_do') >= 350 && query.scoreboard('rpg.maxhp_do') <= 354"
+            },
+            {
+              "health71": "query.scoreboard('rpg.maxhp_do') >= 355 && query.scoreboard('rpg.maxhp_do') <= 359"
+            },
+            {
+              "health72": "query.scoreboard('rpg.maxhp_do') >= 360 && query.scoreboard('rpg.maxhp_do') <= 364"
+            },
+            {
+              "health73": "query.scoreboard('rpg.maxhp_do') >= 365 && query.scoreboard('rpg.maxhp_do') <= 369"
+            },
+            {
+              "health74": "query.scoreboard('rpg.maxhp_do') >= 370 && query.scoreboard('rpg.maxhp_do') <= 374"
+            },
+            {
+              "health75": "query.scoreboard('rpg.maxhp_do') >= 375 && query.scoreboard('rpg.maxhp_do') <= 379"
+            },
+            {
+              "health76": "query.scoreboard('rpg.maxhp_do') >= 380 && query.scoreboard('rpg.maxhp_do') <= 384"
+            },
+            {
+              "health77": "query.scoreboard('rpg.maxhp_do') >= 385 && query.scoreboard('rpg.maxhp_do') <= 389"
+            },
+            {
+              "health78": "query.scoreboard('rpg.maxhp_do') >= 390 && query.scoreboard('rpg.maxhp_do') <= 394"
+            },
+            {
+              "health79": "query.scoreboard('rpg.maxhp_do') >= 395 && query.scoreboard('rpg.maxhp_do') <= 399"
+            },
+            {
+              "health80": "query.scoreboard('rpg.maxhp_do') >= 400 && query.scoreboard('rpg.maxhp_do') <= 404"
+            },
+            {
+              "health81": "query.scoreboard('rpg.maxhp_do') >= 405 && query.scoreboard('rpg.maxhp_do') <= 409"
+            },
+            {
+              "health82": "query.scoreboard('rpg.maxhp_do') >= 410 && query.scoreboard('rpg.maxhp_do') <= 414"
+            },
+            {
+              "health83": "query.scoreboard('rpg.maxhp_do') >= 415 && query.scoreboard('rpg.maxhp_do') <= 419"
+            },
+            {
+              "health84": "query.scoreboard('rpg.maxhp_do') >= 420 && query.scoreboard('rpg.maxhp_do') <= 424"
+            },
+            {
+              "health85": "query.scoreboard('rpg.maxhp_do') >= 425 && query.scoreboard('rpg.maxhp_do') <= 429"
+            },
+            {
+              "health86": "query.scoreboard('rpg.maxhp_do') >= 430 && query.scoreboard('rpg.maxhp_do') <= 434"
+            },
+            {
+              "health87": "query.scoreboard('rpg.maxhp_do') >= 435 && query.scoreboard('rpg.maxhp_do') <= 439"
+            },
+            {
+              "health88": "query.scoreboard('rpg.maxhp_do') >= 440 && query.scoreboard('rpg.maxhp_do') <= 444"
+            },
+            {
+              "health89": "query.scoreboard('rpg.maxhp_do') >= 445 && query.scoreboard('rpg.maxhp_do') <= 449"
+            },
+            {
+              "health90": "query.scoreboard('rpg.maxhp_do') >= 450 && query.scoreboard('rpg.maxhp_do') <= 454"
+            },
+            {
+              "health91": "query.scoreboard('rpg.maxhp_do') >= 455 && query.scoreboard('rpg.maxhp_do') <= 459"
+            },
+            {
+              "health92": "query.scoreboard('rpg.maxhp_do') >= 460 && query.scoreboard('rpg.maxhp_do') <= 464"
+            },
+            {
+              "health93": "query.scoreboard('rpg.maxhp_do') >= 465 && query.scoreboard('rpg.maxhp_do') <= 469"
+            },
+            {
+              "health94": "query.scoreboard('rpg.maxhp_do') >= 470 && query.scoreboard('rpg.maxhp_do') <= 474"
+            },
+            {
+              "health95": "query.scoreboard('rpg.maxhp_do') >= 475 && query.scoreboard('rpg.maxhp_do') <= 479"
+            },
+            {
+              "health96": "query.scoreboard('rpg.maxhp_do') >= 480 && query.scoreboard('rpg.maxhp_do') <= 484"
+            },
+            {
+              "health97": "query.scoreboard('rpg.maxhp_do') >= 485 && query.scoreboard('rpg.maxhp_do') <= 489"
+            },
+            {
+              "health98": "query.scoreboard('rpg.maxhp_do') >= 490 && query.scoreboard('rpg.maxhp_do') <= 494"
+            },
+            {
+              "health99": "query.scoreboard('rpg.maxhp_do') >= 495 && query.scoreboard('rpg.maxhp_do') <= 499"
+            },
+            {
+              "health100": "query.scoreboard('rpg.maxhp_do') >= 500"
+            }
+          ]
+        },
+        "health2": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health2"
+          ]
+        },
+        "health3": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health3"
+          ]
+        },
+        "health4": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health4"
+          ]
+        },
+        "health5": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health5"
+          ]
+        },
+        "health6": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health6"
+          ]
+        },
+        "health7": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health7"
+          ]
+        },
+        "health8": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health8"
+          ]
+        },
+        "health9": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health9"
+          ]
+        },
+        "health10": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health10"
+          ]
+        },
+        "health11": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health11"
+          ]
+        },
+        "health12": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health12"
+          ]
+        },
+        "health13": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health13"
+          ]
+        },
+        "health14": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health14"
+          ]
+        },
+        "health15": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health15"
+          ]
+        },
+        "health16": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health16"
+          ]
+        },
+        "health17": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health17"
+          ]
+        },
+        "health18": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health18"
+          ]
+        },
+        "health19": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health19"
+          ]
+        },
+        "health20": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health20"
+          ]
+        },
+        "health21": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health21"
+          ]
+        },
+        "health22": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health22"
+          ]
+        },
+        "health23": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health23"
+          ]
+        },
+        "health24": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health24"
+          ]
+        },
+        "health25": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health25"
+          ]
+        },
+        "health26": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health26"
+          ]
+        },
+        "health27": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health27"
+          ]
+        },
+        "health28": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health28"
+          ]
+        },
+        "health29": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health29"
+          ]
+        },
+        "health30": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health30"
+          ]
+        },
+        "health31": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health31"
+          ]
+        },
+        "health32": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health32"
+          ]
+        },
+        "health33": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health33"
+          ]
+        },
+        "health34": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health34"
+          ]
+        },
+        "health35": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health35"
+          ]
+        },
+        "health36": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health36"
+          ]
+        },
+        "health37": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health37"
+          ]
+        },
+        "health38": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health38"
+          ]
+        },
+        "health39": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health39"
+          ]
+        },
+        "health40": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health40"
+          ]
+        },
+        "health41": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health41"
+          ]
+        },
+        "health42": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health42"
+          ]
+        },
+        "health43": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health43"
+          ]
+        },
+        "health44": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health44"
+          ]
+        },
+        "health45": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health45"
+          ]
+        },
+        "health46": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health46"
+          ]
+        },
+        "health47": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health47"
+          ]
+        },
+        "health48": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health48"
+          ]
+        },
+        "health49": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health49"
+          ]
+        },
+        "health50": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health50"
+          ]
+        },
+        "health51": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health51"
+          ]
+        },
+        "health52": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health52"
+          ]
+        },
+        "health53": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health53"
+          ]
+        },
+        "health54": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health54"
+          ]
+        },
+        "health55": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health55"
+          ]
+        },
+        "health56": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health56"
+          ]
+        },
+        "health57": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health57"
+          ]
+        },
+        "health58": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health58"
+          ]
+        },
+        "health59": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health59"
+          ]
+        },
+        "health60": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health60"
+          ]
+        },
+        "health61": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health61"
+          ]
+        },
+        "health62": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health62"
+          ]
+        },
+        "health63": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health63"
+          ]
+        },
+        "health64": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health64"
+          ]
+        },
+        "health65": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health65"
+          ]
+        },
+        "health66": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health66"
+          ]
+        },
+        "health67": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health67"
+          ]
+        },
+        "health68": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health68"
+          ]
+        },
+        "health69": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health69"
+          ]
+        },
+        "health70": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health70"
+          ]
+        },
+        "health71": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health71"
+          ]
+        },
+        "health72": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health72"
+          ]
+        },
+        "health73": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health73"
+          ]
+        },
+        "health74": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health74"
+          ]
+        },
+        "health75": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health75"
+          ]
+        },
+        "health76": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health76"
+          ]
+        },
+        "health77": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health77"
+          ]
+        },
+        "health78": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health78"
+          ]
+        },
+        "health79": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health79"
+          ]
+        },
+        "health80": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health80"
+          ]
+        },
+        "health81": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health81"
+          ]
+        },
+        "health82": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health82"
+          ]
+        },
+        "health83": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health83"
+          ]
+        },
+        "health84": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health84"
+          ]
+        },
+        "health85": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health85"
+          ]
+        },
+        "health86": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health86"
+          ]
+        },
+        "health87": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health87"
+          ]
+        },
+        "health88": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health88"
+          ]
+        },
+        "health89": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health89"
+          ]
+        },
+        "health90": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health90"
+          ]
+        },
+        "health91": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health91"
+          ]
+        },
+        "health92": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health92"
+          ]
+        },
+        "health93": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health93"
+          ]
+        },
+        "health94": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health94"
+          ]
+        },
+        "health95": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health95"
+          ]
+        },
+        "health96": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health96"
+          ]
+        },
+        "health97": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health97"
+          ]
+        },
+        "health98": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health98"
+          ]
+        },
+        "health99": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health99"
+          ]
+        },
+        "health100": {
+          "transitions": [
+            {
+              "default": "true"
+            }
+          ],
+          "on_entry": [
+            "@s health100"
+          ]
+        }
+      }
+    }
+  }
+}

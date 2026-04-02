@@ -16,7 +16,9 @@
             },
             "minecraft:tags": {
                 "tags": [
-                    "spear"
+                    "rpg.spear",
+                    "rpg.weapon",
+                    "weapon"
                 ]
             }
         }

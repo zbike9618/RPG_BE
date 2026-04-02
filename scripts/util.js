@@ -127,7 +127,7 @@ export default class {
          * @param {string} objectiveId 
          * @param {number} value 
          */
-        set(entity, objectiveId, value = undefined) {
+        set(entity, objectiveId, value = 0) {
             const objective = world.scoreboard.getObjective(objectiveId);
             if (!objective) {
                 world.scoreboard.addObjective(objectiveId);
@@ -141,11 +141,18 @@ export default class {
          * @returns {number}
          */
         get(entity, objectiveId) {
-            const objective = world.scoreboard.getObjective(objectiveId);
-            if (!objective) {
-                return undefined;
+            try {
+                if (!entity.isValid) return undefined;
+                const objective = world.scoreboard.getObjective(objectiveId);
+                if (!objective) {
+                    return undefined;
+                }
+                return objective?.getScore(entity) ?? 0;
             }
-            return objective.getScore(entity);
+            catch {
+
+            }
         }
     };
+
 }

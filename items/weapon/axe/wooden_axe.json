@@ -16,7 +16,9 @@
             },
             "minecraft:tags": {
                 "tags": [
-                    "axe"
+                    "rpg.axe",
+                    "rpg.weapon",
+                    "weapon"
                 ]
             }
         }

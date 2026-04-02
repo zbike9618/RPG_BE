@@ -16,7 +16,9 @@
             },
             "minecraft:tags": {
                 "tags": [
-                    "dagger"
+                    "rpg.dagger",
+                    "rpg.weapon",
+                    "weapon"
                 ]
             }
         }

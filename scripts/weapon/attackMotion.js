@@ -1,6 +1,7 @@
 import * as server from "@minecraft/server";
-import cooldown from "./cooldown";
+import weapondata from "./weapondata";
 import util from "../util";
+import entityPatch from "../entity/entityPatch";
 const { world, system } = server;
 
 const swordAttackRange = [
@@ -30,7 +31,21 @@ const daggerAttackRange = [
  * @param {string[]} tags 
  */
 export function attackMotion(player, tags) {
-    if (tags.includes("sword")) {
+    if (!tags.includes("rpg.weapon")) return;
+
+    // クールダウン中かどうかの判定
+    const inv = player.getComponent("minecraft:inventory");
+    const item = inv?.container?.getItem(player.selectedSlotIndex);
+    if (!item) return;
+
+    const maxCool = weapondata[item.typeId]?.cl || 1;
+    const currentCool = player.getItemCooldown(item.typeId);
+    
+    // チャージ率 (0.0 〜 1.0) を計算
+    const ratio = Math.max(0.1, (maxCool - currentCool) / maxCool);
+    const isCooldown = currentCool > 0;
+
+    if (tags.includes("rpg.sword")) {
         const damaged = new Set();
         const results = Inside.getSetPosition(player, swordAttackRange);
 
@@ -40,12 +55,12 @@ export function attackMotion(player, tags) {
 
         for (const res of results) {
             Inside.apply(res.pos, res.scale, player, damaged, (p) => {
-                p.applyDamage(3, { cause: server.EntityDamageCause.none, damagingEntity: player });
-                util.knockbackFromPoint(player.location, p);
+                entityPatch.damage(p, Math.floor(3 * ratio), { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
+                if (!isCooldown) util.knockbackFromPoint(player.location, p);
             }, res.fromSelf);
         }
     }
-    if (tags.includes("spear")) {
+    if (tags.includes("rpg.spear")) {
         const damaged = new Set();
         const results = Inside.getSetPosition(player, spearAttackRange);
 
@@ -54,12 +69,12 @@ export function attackMotion(player, tags) {
         for (const res of results) {
             util.expandParticle(player.dimension, res.pos, 3, 0.3, "minecraft:basic_crit_particle");
             Inside.apply(res.pos, res.scale, player, damaged, (p) => {
-                p.applyDamage(4, { cause: server.EntityDamageCause.none, damagingEntity: player });
-                util.knockbackFromPoint(player.location, p);
+                entityPatch.damage(p, Math.floor(4 * ratio), { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
+                if (!isCooldown) util.knockbackFromPoint(player.location, p);
             }, res.fromSelf);
         }
     }
-    if (tags.includes("axe")) {
+    if (tags.includes("rpg.axe")) {
         const damaged = new Set();
         const results = Inside.getSetPosition(player, axeAttackRange);
 
@@ -69,13 +84,15 @@ export function attackMotion(player, tags) {
         player.dimension.spawnParticle("rpg:impact", loc);
         for (const res of results) {
             Inside.apply(res.pos, res.scale, player, damaged, (p) => {
-                p.applyDamage(4, { cause: server.EntityDamageCause.none, damagingEntity: player });
-                util.knockbackFromPoint(player.location, p, 0.7);
-                p.applyKnockback({ x: 0, z: 0 }, 0.5)
+                entityPatch.damage(p, Math.floor(7 * ratio), { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
+                if (!isCooldown) {
+                    util.knockbackFromPoint(player.location, p, 0.7);
+                    p.applyKnockback({ x: 0, z: 0 }, 0.5)
+                }
             }, res.fromSelf);
         }
     }
-    if (tags.includes("dagger")) {
+    if (tags.includes("rpg.dagger")) {
         const damaged = new Set();
         const results = Inside.getSetPosition(player, daggerAttackRange);
 
@@ -84,12 +101,29 @@ export function attackMotion(player, tags) {
         util.expandParticle(player.dimension, loc, 25, 1, "minecraft:basic_crit_particle");
         for (const res of results) {
             Inside.apply(res.pos, res.scale, player, damaged, (p) => {
-                p.applyDamage(1, { cause: server.EntityDamageCause.none, damagingEntity: player });
-                util.knockbackFromPoint(player.location, p, 0.3);
+                entityPatch.damage(p, Math.floor(2 * ratio), { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
+                if (!isCooldown) util.knockbackFromPoint(player.location, p, 0.3);
             }, res.fromSelf);
         }
     }
 }
+
+
+world.beforeEvents.entityHurt.subscribe((ev) => {
+    const damager = ev.damageSource.damagingEntity;
+    if (!damager) return;
+    if (damager.typeId === "minecraft:player") {
+        const comp = damager.getComponent("minecraft:inventory");
+        if (!comp) return;
+        const item = comp.container.getItem(damager.selectedSlotIndex);
+        if (!item) return;
+        const tags = item.getTags();
+        if (tags.includes("rpg.weapon") && ev.damageSource.cause === server.EntityDamageCause.entityAttack) {
+            ev.cancel = true;
+        }
+
+    }
+})
 
 class Inside {
     /**
@@ -104,7 +138,7 @@ class Inside {
         for (const entity of entities) {
             const families = entity.getComponent("minecraft:type_family");
             if (!entity.isValid || !families) continue;
-            if (!families.hasTypeFamily("mob") && !families.hasTypeFamily("player")) continue;
+            if (!families.hasTypeFamily("mob")) continue;
             if (entity.id === damager.id) continue;
             if (damagedSet && damagedSet.has(entity.id)) continue;
 

@@ -1,2 +1,12 @@
 import "./weapon/slowly";
-import "./scriptevents";
+import "./scoreboard";
+import "./entity/player/status_set";
+import "./entity/player/setup";
+import "./entity/player/mp";
+import "./entity/player/regen";
+import "./entity/player/agi";
+import "./entity/player/health";
+import "./entity/mob/damageIndicator";
+import "./entity/mob/mobspawn";
+import "./entity/damaged";
+import "./entity/mob/mobactions";

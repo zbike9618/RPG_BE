@@ -18,6 +18,7 @@ const addObj = [
     "rpg.int_do",
     "rpg.agi_do",
     "rpg.luk_do",
+    "rpg.kb_do",
     //save_statue
     "rpg.maxhp_save",
     "rpg.maxmp_save",
@@ -28,11 +29,19 @@ const addObj = [
     "rpg.int_save",
     "rpg.agi_save",
     "rpg.luk_save",
+    "rpg.kb_save",
     //other
+    "rpg.invincibility",
+    "rpg.hpbar_timer",
+    "rpg.hpregen_i",
+    "rpg.mpregen_i",
 ];
 
 system.beforeEvents.startup.subscribe(() => {
-    addObj.forEach(obj => {
-        world.scoreboard.addObjective(obj);
-    });
+    system.run(() => {
+        addObj.forEach(obj => {
+            if (world.scoreboard.getObjective(obj)) return;
+            world.scoreboard.addObjective(obj);
+        });
+    })
 });
