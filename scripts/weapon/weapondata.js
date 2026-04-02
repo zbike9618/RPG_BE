@@ -1,15 +1,15 @@
 export default {
     "rpg:wooden_sword": {
-        cl: 15,
+        cl: 20,
         st: {
             str: 5,
             maxhp: 10
         }
     },
     "rpg:wooden_spear": {
-        cl: 20,
+        cl: 10,
         st: {
-            str: 6
+            str: 3
         }
     },
     "rpg:wooden_axe": {
@@ -19,9 +19,9 @@ export default {
         }
     },
     "rpg:wooden_dagger": {
-        cl: 8,
+        cl: 5,
         st: {
-            agi: 3
+            agi: 2
         }
     },
 }
