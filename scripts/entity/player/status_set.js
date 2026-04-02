@@ -25,24 +25,25 @@ system.runInterval(() => {
 
     if (!player || !player.isValid) return;
     const scutil = util.score;
-    if (scutil.get(player, "rpg.maxhp_save") === undefined) return;
+    // ジョブ情報の取得
+    const jobId = scutil.get(player, "rpg.job") || 0;
+
 
     for (const s of status) {
         const savescorename = `rpg.${s}_save`;
         const doscorename = `rpg.${s}_do`;
         const scutil = util.score;
         //world.sendMessage(`${savescorename}`)
-        const save = scutil.get(player, savescorename);
+        let result = scutil.get(player, savescorename) || 0;
         //const doscore = scutil.get(player, doscorename);
-        let result = save || 0;
-        //---------------いろいろな計算式-----------------------
+
+
+
+        // 装備補正
         const heldItem = player.getComponent("minecraft:inventory").container.getItem(player.selectedSlotIndex);
         if (heldItem && weapondata[heldItem.typeId]) {
             result += weapondata[heldItem.typeId].st[s] || 0;
         }
-
-
-
 
         //-----------------------------------------------------
         scutil.set(player, doscorename, result);

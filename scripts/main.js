@@ -10,3 +10,4 @@ import "./entity/mob/damageIndicator";
 import "./entity/mob/mobspawn";
 import "./entity/damaged";
 import "./entity/mob/mobactions";
+import "./entity/player/levelUp";

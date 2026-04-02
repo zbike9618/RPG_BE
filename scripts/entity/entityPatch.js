@@ -1,3 +1,6 @@
+import mobdata from "./mob/mobdata";
+import { reward } from "./mob/reward";
+
 export default class {
     /**
      * エンティティに独自ダメージを適用するタグを付与する
@@ -21,7 +24,7 @@ export default class {
     static kill(entity) {
         if (entity.isValid) {
             entity.kill();
-
+            reward(entity, mobdata[entity.typeId]["exp"], mobdata[entity.typeId]["money"]);
         }
     }
 }

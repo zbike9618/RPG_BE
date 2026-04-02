@@ -33,6 +33,7 @@ const addObj = [
     //other
     "rpg.invincibility",
     "rpg.hpbar_timer",
+    "rpg.job",
     "rpg.hpregen_i",
     "rpg.mpregen_i",
 ];

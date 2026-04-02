@@ -16,9 +16,9 @@ system.runInterval(() => {
         let hp_i = scutil.get(player, "rpg.hpregen_i") || 0;
 
         hp_i += hp_regen;
-        while (hp_i >= 2000 && hp < maxhp) {
+        while (hp_i >= 2000) {
             hp_i -= 2000;
-            hp++;
+            if (hp < maxhp) hp++;
         }
         scutil.set(player, "rpg.hpregen_i", hp_i);
         scutil.set(player, "rpg.hp", hp);
@@ -30,9 +30,9 @@ system.runInterval(() => {
         let mp_i = scutil.get(player, "rpg.mpregen_i") || 0;
 
         mp_i += mp_regen;
-        while (mp_i >= 2000 && mp < maxmp) {
+        while (mp_i >= 2000) {
             mp_i -= 2000;
-            mp++;
+            if (mp < maxmp) mp++;
         }
         scutil.set(player, "rpg.mpregen_i", mp_i);
         scutil.set(player, "rpg.mp", mp);

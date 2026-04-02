@@ -100,7 +100,15 @@ system.runInterval(() => {
                         }
 
                         // 安全に数式を評価してダメージを決定
-                        damage = Math.floor(simpleEval(evaluatedFormula));
+                        let evalDamage = simpleEval(evaluatedFormula);
+                        
+                        // プレイヤーからの攻撃なら±10%のダメージばらつきを付与
+                        if (refEntity.typeId === "minecraft:player") {
+                            const variance = 1 + (Math.random() * 0.2 - 0.1); // 0.9 ~ 1.1
+                            damage = Math.floor(evalDamage * variance);
+                        } else {
+                            damage = Math.floor(evalDamage);
+                        }
                     } else {
                         damage = 0;
                     }
