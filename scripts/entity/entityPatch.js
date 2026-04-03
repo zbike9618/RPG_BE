@@ -10,14 +10,6 @@ export default class {
      * @param {{reference?: string, damagerId?: string}} options 
      */
     static damage(entity, damage, { reference, damagerId } = {}) {
-        //skill処理
-
-        const player = world.getEntity(damagerId);
-        if (player && player.isValid) {
-            SkillSystem.trigger(player, "attack", { "attack.damage": damage });
-        }
-
-
 
         let tag = `rpg:damaged_${damage}_${damagerId || "none"}`;
         if (reference) {
@@ -40,7 +32,7 @@ export default class {
                 target: isSelf ? "self" : "other",
                 selfby: isSelf
             });
-            
+
             const util = require("../util").default;
             const scutil = util.score;
             if ((scutil.get(entity, "rpg.hp") || 0) <= 0) {

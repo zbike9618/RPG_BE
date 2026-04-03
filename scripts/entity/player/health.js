@@ -1,6 +1,7 @@
 import * as server from "@minecraft/server";
 import util from "../../util";
 import SkillSystem from "./skill/skillsystem";
+import entityPatch from "../entityPatch";
 const { world, system } = server;
 
 system.runInterval(() => {
@@ -22,7 +23,7 @@ system.runInterval(() => {
         const targetMax = Math.max(1, Math.floor(maxhp_do / 5));
         const targetVal = Math.max(1, Math.floor(current_hp / 5));
         if (current_hp <= 0) {
-            require("../entityPatch").default.kill(player, null);
+            entityPatch.kill(player, null);
             continue;
         }
         if (health.currentValue !== targetVal) {

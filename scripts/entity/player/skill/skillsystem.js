@@ -86,10 +86,21 @@ export default class SkillSystem {
                     const hasRelevantTrigger = getCond.some(c => c.type === eventType || c.type === "status");
                     if (hasRelevantTrigger) {
                         if (this.checkConditions(player, getCond, context, {})) {
-                            // 習得
+                            // 習得初期化
                             const initialVar = sData.variable ? { ...sData.variable } : {};
+                            
+                            // レベル配列があれば、最初の段階(index 0)からスタートする
+                            let displayName = sData.name;
+                            if (sData.level && sData.level.length > 0) {
+                                initialVar.stage = 0; // 進化段階を0からスタート
+                                Object.assign(initialVar, sData.level[0].variable || {});
+                                if (sData.level[0].name) {
+                                    displayName = `${sData.name} ${sData.level[0].name}`;
+                                }
+                            }
+                            
                             skill.add(player, sId, initialVar);
-                            player.sendMessage(`§e[Skill] スキル『${sData.name}』を習得した！`);
+                            player.sendMessage(`§e[Skill] スキル『${displayName}』を習得した！`);
                         }
                     }
                 }
@@ -101,24 +112,26 @@ export default class SkillSystem {
                 // 【進化チェック】
                 const levels = sData.level;
                 if (levels && levels.length > 0) {
-                    for (const lvlData of levels) {
-                        const evoCond = lvlData.evoconditions;
-                        if (evoCond && evoCond.length > 0) {
-                            const hasRelevantTrigger = evoCond.some(c => c.type === eventType || c.type === "status");
-                            if (hasRelevantTrigger) {
-                                if (this.checkConditions(player, evoCond, context, mySkillVar)) {
-                                    // そのレベルに到達済みか(変数をカバーしているか)チェック
-                                    let needsUpgrade = false;
-                                    for (const [k, v] of Object.entries(lvlData.variable || {})) {
-                                         if ((mySkillVar[k] || 0) < v) { needsUpgrade = true; break; }
-                                    }
-                                    if (needsUpgrade) {
-                                         for (const [k, v] of Object.entries(lvlData.variable || {})) {
-                                             mySkillVar[k] = v;
-                                         }
-                                         skill.add(player, sId, mySkillVar); // セーブ
-                                         player.sendMessage(`§a[Skill] スキル『${sData.name}』が進行した！ [${lvlData.name}]`);
-                                    }
+                    const stage = mySkillVar.stage !== undefined ? mySkillVar.stage : 0;
+                    const currentLvlData = levels[stage];
+                    
+                    // 現在の段階の evo (進化条件) をチェックして、満たせば次の段階へ進む
+                    if (currentLvlData && currentLvlData.evoconditions && currentLvlData.evoconditions.length > 0) {
+                        const evoCond = currentLvlData.evoconditions;
+                        const hasRelevantTrigger = evoCond.some(c => c.type === eventType || c.type === "status");
+                        
+                        if (hasRelevantTrigger) {
+                            if (this.checkConditions(player, evoCond, context, mySkillVar)) {
+                                const nextStage = stage + 1;
+                                if (levels[nextStage]) {
+                                    const nextLvlData = levels[nextStage];
+                                    mySkillVar.stage = nextStage;
+                                    // 変数を上書き
+                                    Object.assign(mySkillVar, nextLvlData.variable || {});
+                                    
+                                    skill.add(player, sId, mySkillVar); // セーブ
+                                    const nextName = nextLvlData.name ? ` ${nextLvlData.name}` : "";
+                                    player.sendMessage(`§a[Skill] スキル『${sData.name}${nextName}』に成長した！`);
                                 }
                             }
                         }
@@ -129,7 +142,6 @@ export default class SkillSystem {
                 const runCond = sData.sc?.conditions;
                 let shouldRun = false;
                 if (!runCond || runCond.length === 0) {
-                    // 発動条件の記載が全くなければ、とりあえず許容（パッシブなど）
                     shouldRun = true;
                 } else {
                     if (runCond.some(c => c.type === eventType)) {
@@ -137,7 +149,6 @@ export default class SkillSystem {
                     }
                 }
 
-                // "always" は継続ステータス加算側で処理するため、瞬間的なリザルト反映は弾く
                 if (shouldRun && eventType !== "always") {
                     this.executeResult(player, sData.sc?.result, mySkillVar);
                 }

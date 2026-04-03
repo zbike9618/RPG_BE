@@ -3,6 +3,7 @@ import util from "../../util";
 import { showStatus } from "./showStatus";
 import jobdata from "./job/jobdata";
 import { getStatsGained } from "./levelUp";
+import skill from "./skill/skill";
 const { world, system } = server;
 
 world.afterEvents.entitySpawn.subscribe((ev) => {
@@ -43,7 +44,7 @@ export function setup(player, { level, exp } = { level: 1, exp: 0 }) {
     // 現在のHPとMPを計算後の最大値で全回復
     scutil.set(player, "rpg.hp", (initial.maxhp || 0) + (gained.maxhp || 0));
     scutil.set(player, "rpg.mp", (initial.maxmp || 0) + (gained.maxmp || 0));
-    
+
     scutil.set(player, "rpg.level", level);
     scutil.set(player, "rpg.exp", exp);
     scutil.set(player, "rpg.kb_save", 0);
@@ -61,7 +62,12 @@ system.afterEvents.scriptEventReceive.subscribe((ev) => {
             showStatus(player, "ui")
         }
     }
-
+    if (ev.id === "rpg:removeAll") {
+        const player = ev.sourceEntity;
+        if (player.typeId === "minecraft:player") {
+            skill.remove(player, "attackPower")
+        }
+    }
 });
 
 //生き返ったときのHP戻し

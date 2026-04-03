@@ -2,6 +2,8 @@ import * as server from "@minecraft/server";
 import util from "../util";
 import { applyHPbar } from "./mob/hpbar";
 import { damageIndicator } from "./mob/damageIndicator";
+import entityPatch from "./entityPatch";
+import SkillSystem from "./player/skill/skillsystem";
 const { world, system } = server;
 
 // simpleEvalは util.js 側に移行しました
@@ -139,12 +141,17 @@ system.runInterval(() => {
                 }
 
 
+                // --- 攻撃スキルのトリガー発火 (最終ダメージ確定後) ---
+                if (refEntity && refEntity.typeId === "minecraft:player") {
+
+                    SkillSystem.trigger(refEntity, "attack", { "attack.damage": damage });
+                }
+
                 const nextHp = currentHp - damage;
                 scutil.set(entity, "rpg.hp", nextHp);
 
                 if (nextHp <= 0) {
-                    const Patch = require("./entityPatch").default;
-                    Patch.kill(entity, refEntity ? refEntity.id : null);
+                    entityPatch.kill(entity, refEntity ? refEntity.id : null);
                 }
 
 
