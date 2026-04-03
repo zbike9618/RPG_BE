@@ -1,8 +1,8 @@
 {
     "format_version": 2,
     "header": {
-        "name": "Lyuseria-RPG version 1.0.0 alpha",
-        "description": "Lyuseria-RPG-Behavior",
+        "name": "RPG version 1.0.0 alpha",
+        "description": "RPG-Behavior",
         "uuid": "22ae4ca5-bdba-4455-8b2e-257140870c71",
         "version": [
             1,
