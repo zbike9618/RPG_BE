@@ -18,7 +18,7 @@ system.runInterval(() => {
         const moneyD = `${money}§eG`
         player.onScreenDisplay.setActionBar({
             rawtext: [{
-                text: `§l${getEmpty(59)}${lvD}${getEmpty(10)}${moneyD}${hpD}`
+                text: `§l${getEmpty(50)}${lvD}${getEmpty(41 - (money.toString().length * 2) - (exp.toString().length + nxt_exp.toString().length + lv.toString().length) * 2)}${moneyD}${hpD} `
             }]
         })
     }

@@ -83,7 +83,7 @@ system.runInterval(() => {
                     const saveName = `rpg.${stat}_save`;
                     const curVal = scutil.get(player, saveName) || 0;
                     scutil.set(player, saveName, curVal + val);
-                    
+
                     gainedMessage += `§a${stat.toUpperCase()} +${val}§r `;
                 }
             }
@@ -109,6 +109,7 @@ system.runInterval(() => {
                 y: player.location.y + 1,
                 z: player.location.z
             }, 30, 3, "minecraft:totem_particle");
+            scutil.set(player, "rpg.hp", scutil.get(player, "rpg.maxhp_do"));
         }
     }
 }, 10);

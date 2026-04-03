@@ -71,47 +71,52 @@ system.runInterval(() => {
 
                 const split = tag.split("_");
                 let damage = parseInt(split[1]);
-                // 3番目以降の要素をすべて結合する（rpg.str_do のようにアンダースコアを含む名前対策）
-                const reference = split.slice(2).join("_"); // "参照するEntityID#参照するステータス(数式可)"
-                let refEntity;
-                // 参照がある場合は、基本ダメージを無視して参照式から計算する
-                if (reference && reference.includes("#")) {
-                    const [refId, formula] = reference.split("#");
 
-                    // エンティティIDから参照先を探す
-                    refEntity = world.getEntity(refId);
-                    if (!refEntity) {
-                        refEntity = world.getAllPlayers().find(p => p.id === refId || p.name === refId);
+                // tagData は damagerId または damagerId#formula の形式
+                const tagData = split.slice(2).join("_");
+
+                let refEntity = null;
+                let formula = null;
+
+                if (tagData) {
+                    let damagerId = tagData;
+                    if (tagData.includes("#")) {
+                        const parts = tagData.split("#");
+                        damagerId = parts[0];
+                        // 複数#が含まれる可能性は低いが安全のため結合
+                        formula = parts.slice(1).join("#");
                     }
 
-                    if (refEntity) {
-                        // 数式内の "rpg.xxx" をそれぞれのスコア値に置換 (大文字・小文字・アンダースコア・数字に対応)
-                        const statRegex = /rpg\.[a-zA-Z0-9_]+/g;
-                        let evaluatedFormula = formula;
-                        const statsInFormula = formula.match(statRegex) || [];
-
-                        // 長い名前から順に置換することで、部分一致による置換ミス（rpg.str_do を rpg.str で置換等）を防ぐ
-                        statsInFormula.sort((a, b) => b.length - a.length);
-
-                        for (const stat of statsInFormula) {
-                            const val = scutil.get(refEntity, stat) ?? 0;
-                            const escapedStat = stat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                            evaluatedFormula = evaluatedFormula.replace(new RegExp(escapedStat, "g"), String(val));
+                    if (damagerId !== "none") {
+                        refEntity = world.getEntity(damagerId);
+                        if (!refEntity) {
+                            refEntity = world.getAllPlayers().find(p => p.id === damagerId || p.name === damagerId);
                         }
-
-                        // 安全に数式を評価してダメージを決定
-                        let evalDamage = simpleEval(evaluatedFormula);
-                        
-                        // プレイヤーからの攻撃なら±10%のダメージばらつきを付与
-                        if (refEntity.typeId === "minecraft:player") {
-                            const variance = 1 + (Math.random() * 0.2 - 0.1); // 0.9 ~ 1.1
-                            damage = Math.floor(evalDamage * variance);
-                        } else {
-                            damage = Math.floor(evalDamage);
-                        }
-                    } else {
-                        damage = 0;
                     }
+                }
+
+                // 数式がある場合は基本ダメージを上書きして評価
+                if (refEntity && formula) {
+                    const statRegex = /rpg\.[a-zA-Z0-9_]+/g;
+                    let evaluatedFormula = formula;
+                    const statsInFormula = formula.match(statRegex) || [];
+
+                    statsInFormula.sort((a, b) => b.length - a.length);
+
+                    for (const stat of statsInFormula) {
+                        const val = scutil.get(refEntity, stat) ?? 0;
+                        const escapedStat = stat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        evaluatedFormula = evaluatedFormula.replace(new RegExp(escapedStat, "g"), String(val));
+                    }
+                    damage = simpleEval(evaluatedFormula);
+                }
+
+                // プレイヤーからの攻撃なら±10%のダメージばらつきを付与
+                if (refEntity && refEntity.typeId === "minecraft:player") {
+                    const variance = 1 + (Math.random() * 0.2 - 0.1); // 0.9 ~ 1.1
+                    damage = Math.floor(damage * variance);
+                } else {
+                    damage = Math.floor(damage);
                 }
 
                 // --- 攻撃者側の判定 (クリティカル等) ---
@@ -146,7 +151,21 @@ system.runInterval(() => {
                         damage = 0;
                         entity.sendMessage("§fひらりと身をかわした");
                     }
+
                 }
+                const def = scutil.get(entity, "rpg.def_do") || 0;
+                //----防御判定---------
+                if (damage > 0 && def > 0) {
+                    // 防御力の数値分だけダメージを減算。最低でも1ダメージは与える(0にはならない)
+                    if (def >= damage * 3) {
+                        damage = 1;
+                    }
+                    else {
+
+                        damage = Math.floor((damage * 200) / (def * 2 + 200));
+                    }
+                }
+
 
                 const nextHp = currentHp - damage;
                 scutil.set(entity, "rpg.hp", nextHp);
