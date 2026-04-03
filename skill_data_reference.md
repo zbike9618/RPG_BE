@@ -85,7 +85,17 @@
 
 * **`#` (システム変数参照)**:
   * `#attack.damage` = 現在与えたダメージ量
+  * `#status.hp` = プレイヤーの現在のHP
+  * `#status.mp` = プレイヤーの現在のMP
+  * `#status.maxhp` = プレイヤーの現在の最大HP
+  * `#status.maxmp` = プレイヤーの現在の最大MP
+  * `#status.hpregen` = プレイヤーの現在の最大HP
+  * `#status.mpregen` = プレイヤーの現在の最大MP
+  * `#status.str` = プレイヤーの現在の筋力 (STR)
+  * `#status.def` = プレイヤーの現在の防御力 (DEF)
+  * `#status.int` = プレイヤーの現在の魔力 (INT)
   * `#status.luk` = プレイヤーの現在の運 (LUK)
+  * `#status.agi` = プレイヤーの現在の素早さ (AGI)
   * `#level` = (※システム連動用の特殊表記)
 * **`v.` (スキル固有変数参照)**:
   * `v.level` = 自身の `variable` 内に定義されている `level` の数値

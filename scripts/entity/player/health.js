@@ -1,5 +1,6 @@
 import * as server from "@minecraft/server";
 import util from "../../util";
+import SkillSystem from "./skill/skillsystem";
 const { world, system } = server;
 
 system.runInterval(() => {
@@ -21,9 +22,7 @@ system.runInterval(() => {
         const targetMax = Math.max(1, Math.floor(maxhp_do / 5));
         const targetVal = Math.max(1, Math.floor(current_hp / 5));
         if (current_hp <= 0) {
-            player.kill();
-            scutil.set(player, "rpg.hp", maxhp_do);
-            // 死亡時はこのプレイヤーのループのみスキップする
+            require("../entityPatch").default.kill(player, null);
             continue;
         }
         if (health.currentValue !== targetVal) {

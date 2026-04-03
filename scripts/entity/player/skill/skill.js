@@ -2,27 +2,26 @@ import { DyPro } from "../../../dypro";
 
 export default class {
     /**
-     * 内部用：プレイヤーの所持スキル一覧(配列)を取得
+     * 内部用：プレイヤーの所持スキル一覧(オブジェクト)を取得
      * @private 
      */
     static _getAll(player) {
         const dp = new DyPro("rpg", player);
-        const skills = dp.get("skills");
-        return Array.isArray(skills) ? skills : [];
+        const data = dp.get("skills");
+        return (typeof data === "object" && !Array.isArray(data) && data !== null) ? data : {};
     }
 
     /**
-     * スキルを追加（習得）する。すでに持っている場合は何もしない。
+     * スキルを追加（習得）する。すでに持っている場合は上書き。
      * @param {import("@minecraft/server").Player} player 
      * @param {string} skillId 
+     * @param {any} [data={}] 変数などのデータ
      */
-    static add(player, skillId) {
+    static add(player, skillId, data = {}) {
         const skills = this._getAll(player);
-        if (!skills.includes(skillId)) {
-            skills.push(skillId);
-            const dp = new DyPro("rpg", player);
-            dp.set("skills", skills);
-        }
+        skills[skillId] = data;
+        const dp = new DyPro("rpg", player);
+        dp.set("skills", skills);
     }
 
     /**
@@ -32,15 +31,15 @@ export default class {
      */
     static remove(player, skillId) {
         let skills = this._getAll(player);
-        if (skills.includes(skillId)) {
-            skills = skills.filter(s => s !== skillId);
+        if (skills[skillId] !== undefined) {
+            delete skills[skillId];
             const dp = new DyPro("rpg", player);
             dp.set("skills", skills);
         }
     }
 
     /**
-     * 全スキル一覧(配列)を取得する、もしくは特定のスキルIDを返す。
+     * 全スキル一覧を取得する、もしくは特定のスキルIDのデータを返す。
      * @param {import("@minecraft/server").Player} player 
      * @param {string} [skillId] 
      */
@@ -49,7 +48,7 @@ export default class {
         if (skillId === undefined) {
             return skills;
         }
-        return skills.includes(skillId) ? skillId : undefined;
+        return skills[skillId];
     }
 
     /**
@@ -59,7 +58,8 @@ export default class {
      * @returns {boolean}
      */
     static have(player, skillId) {
-        return this._getAll(player).includes(skillId);
+        const skills = this._getAll(player);
+        return skills[skillId] !== undefined;
     }
 
     // ==========================================

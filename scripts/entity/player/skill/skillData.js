@@ -76,7 +76,9 @@ export default {
         sc: {
             conditions: [
                 {
-                    type: "death"
+                    type: "death",
+                    target: "self",
+                    selfby: true
                 }
             ],
             result: {

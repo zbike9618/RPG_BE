@@ -2,6 +2,7 @@ import * as server from "@minecraft/server";
 import util from "../../util";
 const { world, system } = server;
 import weapondata from "../../weapon/weapondata";
+import SkillSystem from "./skill/skillsystem";
 let count = 0;
 const status = [
     "maxhp",
@@ -40,7 +41,8 @@ export function setStatus(player) {
         let result = scutil.get(player, savescorename) || 0;
         //const doscore = scutil.get(player, doscorename);
 
-
+        // スキル補正
+        result += SkillSystem.calcPassiveBonus(player, s);
 
         // 装備補正
         const heldItem = player.getComponent("minecraft:inventory").container.getItem(player.selectedSlotIndex);
@@ -51,5 +53,6 @@ export function setStatus(player) {
         //-----------------------------------------------------
         scutil.set(player, doscorename, result);
     }
+    SkillSystem.trigger(player, "status");
 
 }

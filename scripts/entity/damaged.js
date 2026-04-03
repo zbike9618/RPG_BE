@@ -142,6 +142,11 @@ system.runInterval(() => {
                 const nextHp = currentHp - damage;
                 scutil.set(entity, "rpg.hp", nextHp);
 
+                if (nextHp <= 0) {
+                    const Patch = require("./entityPatch").default;
+                    Patch.kill(entity, refEntity ? refEntity.id : null);
+                }
+
 
                 // ダメージ適用後に無敵時間を付与（10チック = 0.5秒）
                 scutil.set(entity, "rpg.invincibility", 10);
