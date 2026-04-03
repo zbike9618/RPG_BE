@@ -24,6 +24,9 @@ system.runInterval(() => {
     count++;
 
     if (!player || !player.isValid) return;
+    setStatus(player);
+})
+export function setStatus(player) {
     const scutil = util.score;
     // ジョブ情報の取得
     const jobId = scutil.get(player, "rpg.job") || 0;
@@ -49,4 +52,4 @@ system.runInterval(() => {
         scutil.set(player, doscorename, result);
     }
 
-});
+}
