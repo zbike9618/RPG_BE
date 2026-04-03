@@ -4,35 +4,7 @@ import { applyHPbar } from "./mob/hpbar";
 import { damageIndicator } from "./mob/damageIndicator";
 const { world, system } = server;
 
-/**
- * 文字列の数式を安全に計算する (Restricted execution対策)
- * @param {string} str 
- */
-function simpleEval(str) {
-    try {
-        const tokens = str.replace(/\s/g, '').match(/(\d+\.?\d*)|([\+\-\*\/])/g);
-        if (!tokens) return 0;
-        let values = [];
-        for (let i = 0; i < tokens.length; i++) {
-            const token = tokens[i];
-            if (token === "*" || token === "/") {
-                const last = parseFloat(values.pop());
-                const next = parseFloat(tokens[++i]);
-                values.push(token === "*" ? last * next : last / next);
-            } else {
-                values.push(token);
-            }
-        }
-        let result = parseFloat(values[0]);
-        for (let i = 1; i < values.length; i += 2) {
-            const op = values[i];
-            const val = parseFloat(values[i + 1]);
-            if (op === "+") result += val;
-            if (op === "-") result -= val;
-        }
-        return isNaN(result) ? 0 : result;
-    } catch (e) { return 0; }
-}
+// simpleEvalは util.js 側に移行しました
 
 system.runInterval(() => {
     const entities = [
@@ -108,7 +80,7 @@ system.runInterval(() => {
                         const escapedStat = stat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                         evaluatedFormula = evaluatedFormula.replace(new RegExp(escapedStat, "g"), String(val));
                     }
-                    damage = simpleEval(evaluatedFormula);
+                    damage = util.simpleEval(evaluatedFormula);
                 }
 
                 // プレイヤーからの攻撃なら±10%のダメージばらつきを付与

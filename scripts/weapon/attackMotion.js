@@ -6,9 +6,9 @@ const { world, system } = server;
 
 const swordAttackRange = [
     //{ x: -2.5, y: 1.0, z: 3.5, scale: 1, fromSelf: true },
-    { x: -1, y: 1.0, z: 2, scale: 0.5, fromSelf: true },
-    { x: 0, y: 1.0, z: 3, scale: 1, fromSelf: true },
-    { x: 1, y: 1.0, z: 2, scale: 0.5, fromSelf: true },
+    { x: -1.5, y: 1.0, z: 1, scale: 2, fromSelf: true },
+    { x: 0, y: 1.0, z: 1, scale: 2, fromSelf: true },
+    { x: 1.5, y: 1.0, z: 1, scale: 2, fromSelf: true },
     //{ x: 2.5, y: 1.0, z: 3.5, scale: 1, fromSelf: true },
 ]
 const spearAttackRange = [
@@ -20,7 +20,7 @@ const spearAttackRange = [
     { x: 0, y: 1.5, z: 1.0, scale: 0.3, fromSelf: false },
 ]
 const axeAttackRange = [
-    { x: 0, y: 1.0, z: 3, scale: 3, fromSelf: false },
+    { x: 0, y: 1.0, z: 2, scale: 2, fromSelf: false },
 ]
 const daggerAttackRange = [
     { x: 0, y: 1.0, z: 2, scale: 1.5, fromSelf: true },

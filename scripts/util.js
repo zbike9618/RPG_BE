@@ -1,6 +1,36 @@
 import * as server from "@minecraft/server";
 const { world } = server;
 export default class {
+    /**
+     * 文字列の数式を安全に計算する (Restricted execution対策)
+     * @param {string} str 
+     */
+    static simpleEval(str) {
+        try {
+            const tokens = String(str).replace(/\s/g, '').match(/(\d+\.?\d*)|([\+\-\*\/])/g);
+            if (!tokens) return 0;
+            let values = [];
+            for (let i = 0; i < tokens.length; i++) {
+                const token = tokens[i];
+                if (token === "*" || token === "/") {
+                    const last = parseFloat(values.pop());
+                    const next = parseFloat(tokens[++i]);
+                    values.push(token === "*" ? last * next : last / next);
+                } else {
+                    values.push(token);
+                }
+            }
+            let result = parseFloat(values[0]);
+            for (let i = 1; i < values.length; i += 2) {
+                const op = values[i];
+                const val = parseFloat(values[i + 1]);
+                if (op === "+") result += val;
+                if (op === "-") result -= val;
+            }
+            return isNaN(result) ? 0 : result;
+        } catch (e) { return 0; }
+    }
+
     static getForwardPosition(player, x = 0, y = 0, z = 0) {
         const base = player.location;
         const viewDir = player.getViewDirection();
