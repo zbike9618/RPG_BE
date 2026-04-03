@@ -22,7 +22,9 @@ system.runInterval(() => {
         const targetVal = Math.max(1, Math.floor(current_hp / 5));
         if (current_hp <= 0) {
             player.kill();
-            return;
+            scutil.set(player, "rpg.hp", maxhp_do);
+            // 死亡時はこのプレイヤーのループのみスキップする
+            continue;
         }
         if (health.currentValue !== targetVal) {
             try {
