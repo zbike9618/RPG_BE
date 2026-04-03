@@ -41,8 +41,12 @@ export function attackMotion(player, tags) {
     const maxCool = weapondata[item.typeId]?.cl || 1;
     const currentCool = player.getItemCooldown(item.typeId);
     
-    // チャージ率 (0.0 〜 1.0) を計算
-    const ratio = Math.max(0.1, (maxCool - currentCool) / maxCool);
+    // チャージ率 (0.0 〜 1.0)
+    const baseRatio = (maxCool - currentCool) / maxCool;
+    
+    // クールタイム中の威力をさらに激減させる (3乗計算にすることで、溜まる直前まで威力が極端に低くなる仕様)
+    const ratio = Math.max(0.05, Math.pow(baseRatio, 3)); 
+    
     const isCooldown = currentCool > 0;
 
     if (tags.includes("rpg.sword")) {
