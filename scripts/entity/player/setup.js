@@ -4,6 +4,7 @@ import { showStatus } from "./showStatus";
 import jobdata from "./job/jobdata";
 import { getStatsGained } from "./levelUp";
 import skill from "./skill/skill";
+import { addObj } from "../../scoreboard";
 const { world, system } = server;
 
 world.afterEvents.entitySpawn.subscribe((ev) => {
@@ -26,6 +27,10 @@ world.afterEvents.entitySpawn.subscribe((ev) => {
 });
 export function setup(player, { level, exp } = { level: 1, exp: 0 }) {
     const scutil = util.score;
+
+    addObj.forEach(obj => {
+        scutil.set(player, obj, 0);
+    });
     const jobId = scutil.get(player, "rpg.job") || 0;
     const currentJob = jobdata[jobId] || jobdata[0];
     const initial = currentJob.initial || {};

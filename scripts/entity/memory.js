@@ -24,12 +24,16 @@ export default class Memory {
     static use(entity, id) {
         const dypro = new DyPro("memory", entity);
         const memoryData = dypro.get("memory") || getInitialData(this.memoryAmount);
-
+        if (Object.values(memoryData).includes(id)) {
+            return false;
+        }
         for (let i = 0; i < this.memoryAmount; i++) {
             const key = String(i);
             if (!memoryData[key]) {
+
                 memoryData[key] = id;
                 dypro.set("memory", memoryData);
+                world.sendMessage(`memory used ${key}`);
                 return true;
             }
         }

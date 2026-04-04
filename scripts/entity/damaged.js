@@ -21,14 +21,14 @@ system.runInterval(() => {
         const scutil = util.score
         let invincibility = 0;
         // 無敵時間のカウントダウン処理
-        if (Memory.use(entity, "invincibility") || Memory.has(entity, "invincibility")) {
-            invincibility = Memory.get(entity, "invincibility") || 0;
+
+        if (Memory.has(entity, "invincibility")) {
+            invincibility = Memory.get(entity, "invincibility");
             if (invincibility > 0) {
                 Memory.set(entity, "invincibility", invincibility - 1);
             }
             else {
-                if (invincibility != 0)
-                    Memory.free(entity, "invincibility")
+                Memory.free(entity, "invincibility")
             }
         }
         if (entity.typeId != "minecraft:player") {
@@ -161,9 +161,9 @@ system.runInterval(() => {
                 if (nextHp <= 0) {
                     entityPatch.kill(entity, refEntity ? refEntity.id : null);
                 }
-
+                Memory.use(entity, "invincibility");
                 // ダメージ適用後に無敵時間を付与（10チック = 0.5秒）
-                Memory.set(entity, "invincibility", 10);
+                Memory.set(entity, "invincibility", 60);
 
                 // HPバーの表示タイマーをセット（100チック = 5秒）
                 Memory.set(entity, "hpbar_timer", 100);
