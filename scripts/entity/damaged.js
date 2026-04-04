@@ -4,6 +4,7 @@ import { applyHPbar } from "./mob/hpbar";
 import { damageIndicator } from "./mob/damageIndicator";
 import entityPatch from "./entityPatch";
 import SkillSystem from "./player/skill/skillsystem";
+import Memory from "./memory";
 const { world, system } = server;
 
 // simpleEvalは util.js 側に移行しました
@@ -18,20 +19,32 @@ system.runInterval(() => {
         const family = entity.getComponent("minecraft:type_family");
         if (entity.typeId !== "minecraft:player" && (!family || !family.hasTypeFamily("mob"))) continue;
         const scutil = util.score
-
+        let invincibility = 0;
         // 無敵時間のカウントダウン処理
-        let invincibility = scutil.get(entity, "rpg.invincibility") || 0;
-        if (invincibility > 0) {
-            scutil.set(entity, "rpg.invincibility", invincibility - 1);
-        }
-
-        // HPバー表示タイマーのカウントダウン処理
-        let hpbarTimer = scutil.get(entity, "rpg.hpbar_timer") || 0;
-        if (hpbarTimer > 0) {
-            if (hpbarTimer === 1) {
-                entity.nameTag = ""; // 5秒経過で非表示
+        if (Memory.use(entity, "invincibility") || Memory.has(entity, "invincibility")) {
+            invincibility = Memory.get(entity, "invincibility") || 0;
+            if (invincibility > 0) {
+                Memory.set(entity, "invincibility", invincibility - 1);
             }
-            scutil.set(entity, "rpg.hpbar_timer", hpbarTimer - 1);
+            else {
+                if (invincibility != 0)
+                    Memory.free(entity, "invincibility")
+            }
+        }
+        if (entity.typeId != "minecraft:player") {
+            // HPバー表示タイマーのカウントダウン処理
+            if (Memory.use(entity, "hpbar_timer") || Memory.has(entity, "hpbar_timer")) {
+                let hpbarTimer = Memory.get(entity, "hpbar_timer") || 0;
+                if (hpbarTimer > 0) {
+                    if (hpbarTimer === 1) {
+                        entity.nameTag = ""; // 5秒経過で非表示
+                        Memory.free(entity, "hpbar_timer")
+                    }
+                    else {
+                        Memory.set(entity, "hpbar_timer", hpbarTimer - 1);
+                    }
+                }
+            }
         }
         const tags = entity.getTags();
         for (const tag of tags) {
@@ -84,7 +97,6 @@ system.runInterval(() => {
                     }
                     damage = util.simpleEval(evaluatedFormula);
                 }
-
                 // プレイヤーからの攻撃なら±10%のダメージばらつきを付与
                 if (refEntity && refEntity.typeId === "minecraft:player") {
                     const variance = 1 + (Math.random() * 0.2 - 0.1); // 0.9 ~ 1.1
@@ -141,11 +153,7 @@ system.runInterval(() => {
                 }
 
 
-                // --- 攻撃スキルのトリガー発火 (最終ダメージ確定後) ---
-                if (refEntity && refEntity.typeId === "minecraft:player") {
 
-                    SkillSystem.trigger(refEntity, "attack", { "attack.damage": damage });
-                }
 
                 const nextHp = currentHp - damage;
                 scutil.set(entity, "rpg.hp", nextHp);
@@ -154,22 +162,28 @@ system.runInterval(() => {
                     entityPatch.kill(entity, refEntity ? refEntity.id : null);
                 }
 
-
                 // ダメージ適用後に無敵時間を付与（10チック = 0.5秒）
-                scutil.set(entity, "rpg.invincibility", 10);
+                Memory.set(entity, "invincibility", 10);
 
                 // HPバーの表示タイマーをセット（100チック = 5秒）
-                scutil.set(entity, "rpg.hpbar_timer", 100);
+                Memory.set(entity, "hpbar_timer", 100);
 
                 if (entity.typeId !== "minecraft:player") {
                     applyHPbar(entity);
                 }
                 damageIndicator(entity, damage);
 
-
-
                 // タグを削除
                 entity.removeTag(tag);
+
+                // --- 攻撃スキルのトリガー発火 (タグ削除後・ダメージ確定後) ---
+                try {
+                    if (refEntity && refEntity.typeId === "minecraft:player") {
+                        SkillSystem.trigger(refEntity, "attack", { "attack.damage": damage });
+                    }
+                } catch (e) {
+                    console.error("[SkillSystem] attack trigger error:", e);
+                }
             }
         }
     }

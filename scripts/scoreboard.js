@@ -1,6 +1,6 @@
 import * as server from "@minecraft/server";
 const { world, system } = server;
-const addObj = [
+export const addObj = [
     //now_status
     "rpg.hp",
     "rpg.mp",
@@ -36,6 +36,24 @@ const addObj = [
     "rpg.job",
     "rpg.hpregen_i",
     "rpg.mpregen_i",
+
+    //memory
+    "rpg.memory_1",
+    "rpg.memory_2",
+    "rpg.memory_3",
+    "rpg.memory_4",
+    "rpg.memory_5",
+    "rpg.memory_6",
+    "rpg.memory_7",
+    "rpg.memory_8",
+    "rpg.memory_9",
+    "rpg.memory_10",
+    "rpg.memory_11",
+    "rpg.memory_12",
+    "rpg.memory_13",
+    "rpg.memory_14",
+    "rpg.memory_15",
+    "rpg.memory_16"
 ];
 
 system.beforeEvents.startup.subscribe(() => {

@@ -45,8 +45,7 @@ export function attackMotion(player, tags) {
     const baseRatio = (maxCool - currentCool) / maxCool;
 
     // クールタイム中の威力をさらに激減させる (3乗計算にすることで、溜まる直前まで威力が極端に低くなる仕様)
-    const ratio = Math.max(1, Math.pow(baseRatio, 2));
-
+    const ratio = Math.max(0.05, Math.pow(baseRatio, 2));
     const isCooldown = currentCool > 0;
 
     if (tags.includes("rpg.sword")) {
@@ -59,7 +58,7 @@ export function attackMotion(player, tags) {
 
         for (const res of results) {
             Inside.apply(res.pos, res.scale, player, damaged, (p) => {
-                entityPatch.damage(p, Math.floor(3 * ratio), { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
+                entityPatch.damage(p, 0, { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
                 if (!isCooldown) util.knockbackFromPoint(player.location, p);
             }, res.fromSelf);
         }
@@ -73,7 +72,7 @@ export function attackMotion(player, tags) {
         for (const res of results) {
             util.expandParticle(player.dimension, res.pos, 3, 0.3, "minecraft:basic_crit_particle");
             Inside.apply(res.pos, res.scale, player, damaged, (p) => {
-                entityPatch.damage(p, Math.floor(4 * ratio), { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
+                entityPatch.damage(p, 0, { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
                 if (!isCooldown) util.knockbackFromPoint(player.location, p);
             }, res.fromSelf);
         }
@@ -88,7 +87,7 @@ export function attackMotion(player, tags) {
         player.dimension.spawnParticle("rpg:impact", loc);
         for (const res of results) {
             Inside.apply(res.pos, res.scale, player, damaged, (p) => {
-                entityPatch.damage(p, Math.floor(7 * ratio), { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
+                entityPatch.damage(p, 0, { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
                 if (!isCooldown) {
                     util.knockbackFromPoint(player.location, p, 0.7);
                     p.applyKnockback({ x: 0, z: 0 }, 0.5)
@@ -105,7 +104,7 @@ export function attackMotion(player, tags) {
         util.expandParticle(player.dimension, loc, 25, 1, "minecraft:basic_crit_particle");
         for (const res of results) {
             Inside.apply(res.pos, res.scale, player, damaged, (p) => {
-                entityPatch.damage(p, Math.floor(2 * ratio), { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
+                entityPatch.damage(p, Math.max(1, Math.floor(2 * ratio)), { reference: `(rpg.str_do)*${ratio.toFixed(2)}`, damagerId: player.id });
                 if (!isCooldown) util.knockbackFromPoint(player.location, p, 0.3);
             }, res.fromSelf);
         }

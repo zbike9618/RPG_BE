@@ -2,6 +2,7 @@ import mobdata from "./mob/mobdata";
 import { reward } from "./mob/reward";
 import { world } from "@minecraft/server";
 import SkillSystem from "./player/skill/skillsystem";
+import util from "../util";
 export default class {
     /**
      * エンティティに独自ダメージを適用するタグを付与する
@@ -33,7 +34,6 @@ export default class {
                 selfby: isSelf
             });
 
-            const util = require("../util").default;
             const scutil = util.score;
             if ((scutil.get(entity, "rpg.hp") || 0) <= 0) {
                 entity.kill();

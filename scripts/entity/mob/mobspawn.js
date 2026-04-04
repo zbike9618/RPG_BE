@@ -3,7 +3,7 @@ import * as server from "@minecraft/server";
 import util from "../../util";
 import mobdata from "./mobdata";
 const { world, system } = server;
-
+import { addObj } from "../../scoreboard";
 world.afterEvents.entitySpawn.subscribe((ev) => {
     const entity = ev.entity;
     if (entity.typeId == "minecraft:player") return;
@@ -14,6 +14,9 @@ world.afterEvents.entitySpawn.subscribe((ev) => {
         const lv = scutil.get(entity, "rpg.level") || 1;
         const mdata = mobdata[entity.typeId];
         if (!mdata) return;
+        addObj.forEach(obj => {
+            scutil.set(entity, obj, 0);
+        });
 
         const maxhp = mdata.maxhp + ((mdata.perLevel?.maxhp || 0) * (lv - 1));
         const str = mdata.str + ((mdata.perLevel?.str || 0) * (lv - 1));
