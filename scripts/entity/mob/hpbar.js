@@ -12,11 +12,6 @@ export function applyHPbar(entity) {
     const maxhp = scutil.get(entity, "rpg.maxhp_do") || 1;
     const hp = scutil.get(entity, "rpg.hp") || 0;
 
-    // 体力が0以下の場合はバーを表示しない
-    if (hp <= 0) {
-        entityPatch.kill(entity)
-        return;
-    }
 
     const ps = hp / maxhp;
 
