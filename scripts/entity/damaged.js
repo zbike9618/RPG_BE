@@ -163,7 +163,7 @@ system.runInterval(() => {
                 }
                 Memory.use(entity, "invincibility");
                 // ダメージ適用後に無敵時間を付与（10チック = 0.5秒）
-                Memory.set(entity, "invincibility", 60);
+                Memory.set(entity, "invincibility", 10);
 
                 // HPバーの表示タイマーをセット（100チック = 5秒）
                 Memory.set(entity, "hpbar_timer", 100);
