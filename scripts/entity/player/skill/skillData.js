@@ -4,6 +4,7 @@
 export default {
     "attackPower": {
         name: "攻撃強化",
+        getdescription: "30ダメージ以上を与える",
         description: "攻撃力を上昇させる",
         type: 0,
         variable: {
@@ -13,7 +14,7 @@ export default {
             {
                 name: "小",
                 variable: {
-                    "level": 1
+                    "powerp": 5
                 },
                 evoconditions: [
                     {
@@ -27,7 +28,7 @@ export default {
             {
                 name: "中",
                 variable: {
-                    "level": 5
+                    "powerp": 10
                 },
                 evoconditions: [
                     {
@@ -41,7 +42,7 @@ export default {
             {
                 name: "大",
                 variable: {
-                    "level": 10
+                    "powerp": 15
                 }
             }
         ],
@@ -49,10 +50,10 @@ export default {
             conditions: [],
             result: {
                 status: {
-                    add: [
+                    percent: [
                         {
                             type: "str",
-                            value: "v.level"
+                            value: "v.powerp"
                         }
                     ]
                 }
@@ -97,6 +98,50 @@ export default {
                     operation: ">",
                     value: "#status.luk",
                     value2: 100
+                }
+            ]
+        }
+    },
+    "super_regeneration": {
+        name: "超回復",
+        description: "MPを使ってHPを回復する",
+        getdescription: "MPREGENとHPREGENの合計が300以上",
+        type: 0,
+        sc: {
+            conditions: [
+                {
+                    type: "status",
+                    operation: ">=",
+                    value: "#status.mp",
+                    value2: 5
+                },
+                {
+                    type: "status",
+                    operation: "<",
+                    value: "#status.hp",
+                    value2: "#status.maxhp"
+                }
+            ],
+            result: {
+                status: {
+                    add: [
+                        {
+                            type: "hp",
+                            value: 1
+                        },
+                        {
+                            type: "mp",
+                            value: -5
+                        }
+                    ]
+                }
+            },
+            getconditions: [
+                {
+                    type: "status",
+                    operation: ">",
+                    value: "#status.hpregen + #status.mp",
+                    value2: 300
                 }
             ]
         }

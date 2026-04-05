@@ -2,6 +2,7 @@ import * as server from "@minecraft/server";
 import util from "../../../util";
 import skillData from "./skillData";
 import skill from "./skill";
+import StatusModifier from "../status_percent";
 
 const { world, system } = server;
 
@@ -51,21 +52,23 @@ export default class SkillSystem {
             if (!cond.operation) continue;
 
             let valA = String(cond.value);
-            let valB = Number(cond.value2);
+            let valB = String(cond.value2);
 
             // コンテキスト変数の置換 (例: #attack.damage)
             for (const [k, v] of Object.entries(context)) {
                 valA = valA.replace(new RegExp(`#${k}`, "g"), String(v));
+                valB = valB.replace(new RegExp(`#${k}`, "g"), String(v));
             }
 
             let finalA = this.evaluateValue(player, valA, skillVar);
+            let finalB = this.evaluateValue(player, valB, skillVar);
 
             switch (cond.operation) {
-                case "==": if (!(finalA === valB)) return false; break;
-                case ">=": if (!(finalA >= valB)) return false; break;
-                case "<=": if (!(finalA <= valB)) return false; break;
-                case ">": if (!(finalA > valB)) return false; break;
-                case "<": if (!(finalA < valB)) return false; break;
+                case "==": if (!(finalA === finalB)) return false; break;
+                case ">=": if (!(finalA >= finalB)) return false; break;
+                case "<=": if (!(finalA <= finalB)) return false; break;
+                case ">":  if (!(finalA >  finalB)) return false; break;
+                case "<":  if (!(finalA <  finalB)) return false; break;
             }
         }
         return true;
@@ -138,7 +141,9 @@ export default class SkillSystem {
                     }
                 }
 
-                // 【発動チェック】
+                // 【発動チェック】セットされているスキルのみ発動する
+                if (!skill.isSet(player, sId)) continue;
+
                 const runCond = sData.sc?.conditions;
                 let shouldRun = false;
                 if (!runCond || runCond.length === 0) {
@@ -149,8 +154,25 @@ export default class SkillSystem {
                     }
                 }
 
-                if (shouldRun && eventType !== "always") {
-                    this.executeResult(player, sData.sc?.result, mySkillVar);
+                if (shouldRun) {
+                    const isPassive = !runCond || runCond.length === 0;
+
+                    if (isPassive) {
+                        // パッシブスキル: hp/mp の add のみ 非可逆で直接適用する
+                        // str 等の add は calcPassiveBonus で処理するためここでは除外
+                        const result = sData.sc?.result;
+                        const hpMpAdds = (result?.status?.add || []).filter(a => a.type === "hp" || a.type === "mp");
+                        if (hpMpAdds.length > 0) {
+                            this.executeResult(player, { status: { add: hpMpAdds } }, mySkillVar);
+                        }
+                        // set と percent はそのまま適用（refreshPassivePercent で処理済みなので上書きになる）
+                        if (result?.status?.set) {
+                            this.executeResult(player, { status: { set: result.status.set } }, mySkillVar);
+                        }
+                    } else {
+                        // イベント発動型スキル: 全ての result を適用する
+                        this.executeResult(player, sData.sc?.result, mySkillVar);
+                    }
                 }
             }
         }
@@ -180,6 +202,43 @@ export default class SkillSystem {
                     scutil.set(player, scoreName, Math.floor(val));
                 }
             }
+            // パーセント補正
+            if (result.status.percent) {
+                for (const pData of result.status.percent) {
+                    const val = this.evaluateValue(player, pData.value, skillVar);
+                    const modId = pData.id || `skill_evt_${pData.type}`;
+                    StatusModifier.add(player, pData.type, modId, Math.floor(val));
+                }
+            }
+        }
+    }
+
+    /**
+     * パッシブスキル (type:"always") の percent 補正を StatusModifier へ反映する
+     * status_set.js の setStatus 開始時に呼び出す
+     * @param {import("@minecraft/server").Player} player
+     */
+    static refreshPassivePercent(player) {
+        const allSkills = skill.get(player);
+        for (const [sId, mySkillVar] of Object.entries(allSkills)) {
+            const sData = skillData[sId];
+            if (!sData || !sData.sc) continue;
+
+            const conds = sData.sc.conditions;
+            const isAlways = !conds || conds.length === 0 || conds.some(c => c.type === "always");
+            if (!isAlways) continue;
+            // セットされていないスキルはパーセント補正を与えない
+            if (!skill.isSet(player, sId)) continue;
+
+            const percentList = sData.sc.result?.status?.percent;
+            if (!percentList) continue;
+
+            for (const pData of percentList) {
+                const val = this.evaluateValue(player, pData.value, mySkillVar);
+                // スキルIDをプレフィックスにすることでスキル由来の補正と識別できる
+                const modId = pData.id || `skill_${sId}_${pData.type}`;
+                StatusModifier.add(player, pData.type, modId, Math.floor(val));
+            }
         }
     }
 
@@ -190,19 +249,26 @@ export default class SkillSystem {
      * @param {string} statType "str", "hp" など
      */
     static calcPassiveBonus(player, statType) {
+        // hp と mp は非可逆な改変として executeResult で処理するため、ここでは入れない
+        if (statType === "hp" || statType === "mp") return 0;
+
         let total = 0;
         const allSkills = skill.get(player);
         for (const [sId, mySkillVar] of Object.entries(allSkills)) {
             const sData = skillData[sId];
             if (!sData || !sData.sc) continue;
-            
+            // セットされていないスキルはパッシブボーナスを与えない
+            if (!skill.isSet(player, sId)) continue;
+
             const conds = sData.sc.conditions;
             const isAlways = !conds || conds.length === 0 || conds.some(c => c.type === "always");
-            
+
             if (isAlways) {
                 const addList = sData.sc.result?.status?.add;
                 if (addList) {
                     for (const addData of addList) {
+                        // hp/mp は除外する（executeResult で非可逆適用）
+                        if (addData.type === "hp" || addData.type === "mp") continue;
                         if (addData.type === statType) {
                             total += this.evaluateValue(player, addData.value, mySkillVar);
                         }

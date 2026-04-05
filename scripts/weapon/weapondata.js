@@ -15,7 +15,7 @@ export default {
     "rpg:wooden_axe": {
         cl: 30,
         st: {
-            str: 8
+            str: 30
         }
     },
     "rpg:wooden_dagger": {

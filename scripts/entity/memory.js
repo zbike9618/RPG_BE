@@ -33,7 +33,6 @@ export default class Memory {
 
                 memoryData[key] = id;
                 dypro.set("memory", memoryData);
-                world.sendMessage(`memory used ${key}`);
                 return true;
             }
         }

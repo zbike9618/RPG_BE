@@ -7,7 +7,10 @@ export default class {
      */
     static simpleEval(str) {
         try {
-            const tokens = String(str).replace(/\s/g, '').match(/(\d+\.?\d*)|([\+\-\*\/])/g);
+            // 先頭がマイナスの場合は 0 を前置する (例: "-2" → "0-2")
+            let normalized = String(str).replace(/\s/g, '');
+            if (normalized.startsWith('-')) normalized = '0' + normalized;
+            const tokens = normalized.match(/(\d+\.?\d*)|([+\-*/])/g);
             if (!tokens) return 0;
             let values = [];
             for (let i = 0; i < tokens.length; i++) {

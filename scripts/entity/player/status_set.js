@@ -3,6 +3,7 @@ import util from "../../util";
 const { world, system } = server;
 import weapondata from "../../weapon/weapondata";
 import SkillSystem from "./skill/skillsystem";
+import StatusModifier from "./status_percent";
 let count = 0;
 const status = [
     "maxhp",
@@ -32,6 +33,8 @@ export function setStatus(player) {
     // ジョブ情報の取得
     const jobId = scutil.get(player, "rpg.job") || 0;
 
+    // パッシブスキルのパーセント補正を更新
+    SkillSystem.refreshPassivePercent(player);
 
     for (const s of status) {
         const savescorename = `rpg.${s}_save`;
@@ -49,6 +52,9 @@ export function setStatus(player) {
         if (heldItem && weapondata[heldItem.typeId]) {
             result += weapondata[heldItem.typeId].st[s] || 0;
         }
+
+        // パーセント補正 (StatusModifier)
+        result += StatusModifier.calcBonus(player, s, result);
 
         //-----------------------------------------------------
         scutil.set(player, doscorename, result);

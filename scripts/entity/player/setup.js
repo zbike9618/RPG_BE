@@ -4,6 +4,7 @@ import { showStatus } from "./showStatus";
 import jobdata from "./job/jobdata";
 import { getStatsGained } from "./levelUp";
 import skill from "./skill/skill";
+import { showSkillMenu } from "./skill/skillmenu";
 import { addObj } from "../../scoreboard";
 const { world, system } = server;
 
@@ -71,6 +72,12 @@ system.afterEvents.scriptEventReceive.subscribe((ev) => {
         const player = ev.sourceEntity;
         if (player.typeId === "minecraft:player") {
             skill.remove(player, "attackPower")
+        }
+    }
+    if (ev.id === "rpg:skillMenu") {
+        const player = ev.sourceEntity;
+        if (player?.typeId === "minecraft:player") {
+            showSkillMenu(player);
         }
     }
 });
