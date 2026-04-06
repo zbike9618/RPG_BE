@@ -2,6 +2,8 @@ import mobdata from "./mob/mobdata";
 import { reward } from "./mob/reward";
 import { world } from "@minecraft/server";
 import SkillSystem from "./player/skill/skillsystem";
+import Memory from "./memory";
+import KillTracker from "./player/kill/killTracker";
 import util from "../util";
 export default class {
     /**
@@ -41,6 +43,32 @@ export default class {
             }
         } else {
             entity.kill();
+            
+            // 攻撃したプレイヤーを特定する
+            let killer = null;
+            if (killerId) {
+                killer = world.getEntity(killerId);
+                if (!killer) {
+                    killer = world.getAllPlayers().find(p => p.id === killerId);
+                }
+            }
+            // killerが見つからない、または遠すぎる場合は最寄りのプレイヤーを探す
+            if (!killer || (killer.typeId === "minecraft:player" && killer.dimension.id !== entity.dimension.id)) {
+                killer = entity.dimension.getPlayers({ location: entity.location, maxDistance: 15 })[0];
+            }
+
+            if (killer && killer.typeId === "minecraft:player") {
+                // キルカウントを増やす (IDとファミリーを記録)
+                const families = entity.getComponent("minecraft:type_family")?.getTypeFamilies() || [];
+                KillTracker.increment(killer, entity.typeId, families);
+                
+                // スキルトリガー発火
+                SkillSystem.trigger(killer, "kill", { 
+                    target: entity.typeId,
+                    target_family: families
+                });
+            }
+
             if (mobdata[entity.typeId]) {
                 reward(entity, mobdata[entity.typeId]["exp"], mobdata[entity.typeId]["money"]);
             }

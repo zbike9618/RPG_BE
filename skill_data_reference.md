@@ -112,19 +112,38 @@ result: {
 `value` や `value2` などの数値指定箇所では、文字列を使って動的な変数を参照して計算させることができます。（`util.simpleEval` により処理されます）
 
 * **`#` (システム変数参照)**:
-  * `#attack.damage` = 現在与えたダメージ量
-  * `#status.hp` = プレイヤーの現在のHP
-  * `#status.mp` = プレイヤーの現在のMP
-  * `#status.maxhp` = プレイヤーの現在の最大HP
-  * `#status.maxmp` = プレイヤーの現在の最大MP
-  * `#status.hpregen` = プレイヤーの現在の最大HP
-  * `#status.mpregen` = プレイヤーの現在の最大MP
-  * `#status.str` = プレイヤーの現在の筋力 (STR)
-  * `#status.def` = プレイヤーの現在の防御力 (DEF)
-  * `#status.int` = プレイヤーの現在の魔力 (INT)
-  * `#status.luk` = プレイヤーの現在の運 (LUK)
-  * `#status.agi` = プレイヤーの現在の素早さ (AGI)
-  * `#level` = (※システム連動用の特殊表記)
+  * `#attack.damage`: 現在与えたダメージ量
+  * `#kill_count`: (**重要: contextual**) `type: "kill"` の条件内で、そのモブやファミリーに合致した討伐数を自動的に返します。
+  * `#kill_total`: 全てのモブの合計討伐数
+  * `#kill.minecraft:zombie`: 指定したIDのモブの討伐数を直接参照
+  * `#memory.KEY`: `Memory` システムに保存されている `KEY` の数値を参照
+  * `#status.hp`, `#status.mp`, `#status.maxhp`, `#status.maxmp`: 各種ステータス
+  * `#status.hpregen`, `#status.mpregen`: 自然回復量
+  * `#status.str`, `#status.def`, `#status.int`, `#status.luk`, `#status.agi`: 各種基礎ステータス
 * **`v.` (スキル固有変数参照)**:
-  * `v.level` = 自身の `variable` 内に定義されている `level` の数値
+  * `v.level`: 自身の `variable` 内に定義されている `level` の数値
   * `value: "v.level * 0.1"` と記述すると、スキルレベル変数 × 0.1 が計算されて適用されます。
+
+---
+
+## 6. 特殊な条件タイプ (Special Condition Types)
+
+### `type: "kill"` (討伐条件)
+モブを倒した際に判定されます。
+
+* **`target`**: 特定のモブIDを指定 (例: `"minecraft:zombie"`)
+* **`target_family`**: 特定のファミリーを指定 (例: `"undead"`)
+* これらを指定した場合、`#kill_count` はそのフィルターに合致した数値を自動的に返します。
+
+```javascript
+// 例: ゾンビを30体以上倒している場合に習得
+getconditions: [
+    {
+        type: "kill",
+        target: "minecraft:zombie",
+        operation: ">=",
+        value: "#kill_count",
+        value2: 30
+    }
+]
+```

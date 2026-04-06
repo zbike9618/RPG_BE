@@ -3,6 +3,8 @@ import util from "../../../util";
 import skillData from "./skillData";
 import skill from "./skill";
 import StatusModifier from "../status_percent";
+import Memory from "../../memory";
+import KillTracker from "../kill/killTracker";
 
 const { world, system } = server;
 
@@ -22,9 +24,20 @@ export default class SkillSystem {
                 str = str.replace(new RegExp(`v\\.${k}`, "g"), String(v));
             }
         }
+        // キル統計の置換 (#kill_total, #kill.minecraft:zombie など)
+        str = str.replace(/#kill_total/g, () => String(KillTracker.getTotal(player)));
+        str = str.replace(/#kill\.([a-zA-Z0-9_:]+)/g, (match, p1) => {
+            return String(KillTracker.getById(player, p1));
+        });
+
         // ステータスの置換 (#status.hpなど)
         str = str.replace(/#status\.([a-zA-Z0-9_]+)/g, (match, p1) => {
             const val = util.score.get(player, `rpg.${p1}`) ?? util.score.get(player, `rpg.${p1}_do`) ?? 0;
+            return String(val);
+        });
+        // メモリの置換 (#memory.kill_countなど)
+        str = str.replace(/#memory\.([a-zA-Z0-9_]+)/g, (match, p1) => {
+            const val = Memory.get(player, p1);
             return String(val);
         });
         return util.simpleEval(str);
@@ -55,7 +68,14 @@ export default class SkillSystem {
             let valB = String(cond.value2);
 
             // コンテキスト変数の置換 (例: #attack.damage)
-            for (const [k, v] of Object.entries(context)) {
+            let currentContext = { ...context };
+
+            // 特殊処理: killイベント時の #kill_count を条件に合わせて上書き
+            if (cond.type === "kill") {
+                currentContext["kill_count"] = KillTracker.getCount(player, cond);
+            }
+
+            for (const [k, v] of Object.entries(currentContext)) {
                 valA = valA.replace(new RegExp(`#${k}`, "g"), String(v));
                 valB = valB.replace(new RegExp(`#${k}`, "g"), String(v));
             }
@@ -86,7 +106,7 @@ export default class SkillSystem {
             if (!skill.have(player, sId)) {
                 const getCond = sData.sc?.getconditions;
                 if (getCond && getCond.length > 0) {
-                    const hasRelevantTrigger = getCond.some(c => c.type === eventType || c.type === "status");
+                    const hasRelevantTrigger = getCond.some(c => c.type === eventType || c.type === "status" || c.type === "kill");
                     if (hasRelevantTrigger) {
                         if (this.checkConditions(player, getCond, context, {})) {
                             // 習得初期化
@@ -121,7 +141,7 @@ export default class SkillSystem {
                     // 現在の段階の evo (進化条件) をチェックして、満たせば次の段階へ進む
                     if (currentLvlData && currentLvlData.evoconditions && currentLvlData.evoconditions.length > 0) {
                         const evoCond = currentLvlData.evoconditions;
-                        const hasRelevantTrigger = evoCond.some(c => c.type === eventType || c.type === "status");
+                        const hasRelevantTrigger = evoCond.some(c => c.type === eventType || c.type === "status" || c.type === "kill");
                         
                         if (hasRelevantTrigger) {
                             if (this.checkConditions(player, evoCond, context, mySkillVar)) {

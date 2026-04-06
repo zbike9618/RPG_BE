@@ -145,5 +145,46 @@ export default {
                 }
             ]
         }
+    },
+    "haisuinojin": {
+        name: "背水の陣",
+        description: "HPが10%以下の時、全ステータスが50%上昇する",
+        getdescription: "30体以上のエネミーを倒す",
+        type: 0,
+        sc: {
+            conditions: [
+                {
+                    type: "status",
+                    operation: "<",
+                    value: "#status.hp",
+                    value2: "#status.maxhp / 10"
+                }
+            ],
+            result: {
+                status: {
+                    percent: [
+                        { type: "str", value: 50 },
+                        { type: "agi", value: 50 },
+                        { type: "vit", value: 50 },
+                        { type: "int", value: 50 },
+                        { type: "luk", value: 50 }
+                    ]
+                }
+            },
+            getconditions: [
+                {
+                    type: "kill",
+                    operation: ">=",
+                    value: "#kill_count",
+                    value2: 30
+                },
+                {
+                    type: "status",
+                    operation: "<",
+                    value: "#status.hp",
+                    value2: "#status.maxhp / 10"
+                }
+            ]
+        }
     }
 }

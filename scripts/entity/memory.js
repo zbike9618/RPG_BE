@@ -79,6 +79,20 @@ export default class Memory {
         if (slotId === null) return 0;
         return util.score.get(entity, `rpg.memory_${slotId + 1}`) || 0;
     }
+
+    /**
+     * idのスロットの数値を加算する（未割り当てなら割り当てる）
+     * @param {import("@minecraft/server").Entity} entity 
+     * @param {string} id 
+     * @param {number} amount 
+     */
+    static increment(entity, id, amount = 1) {
+        if (!this.has(entity, id)) {
+            this.use(entity, id);
+        }
+        const current = this.get(entity, id);
+        this.set(entity, id, current + amount);
+    }
     static has(entity, id) {
         const slotId = this.getSlotId(entity, id);
         if (slotId === null) return false;
