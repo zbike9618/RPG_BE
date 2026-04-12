@@ -106,13 +106,23 @@ export default class StatusModifier {
      * @returns {number}  加算する値（小数切り捨て）
      */
     static calcBonus(entity, stat, baseValue) {
+        const totalPercent = this.getBonusPercent(entity, stat);
+        return Math.floor(baseValue * totalPercent / 100);
+    }
+
+    /**
+     * 合計のパーセント補正値を（%単位で）返す
+     * @param {import("@minecraft/server").Entity} entity 
+     * @param {string} stat 
+     * @returns {number}
+     */
+    static getBonusPercent(entity, stat) {
         const dypro = new DyPro("status_mod", entity);
         const data = dypro.get("mods") || {};
         const mods = data[stat];
         if (!mods || mods.length === 0) return 0;
 
-        const totalPercent = mods.reduce((sum, m) => sum + m.percent, 0);
-        return Math.floor(baseValue * totalPercent / 100);
+        return mods.reduce((sum, m) => sum + m.percent, 0);
     }
 
     /**

@@ -26,6 +26,8 @@ export function showStatus(player, displayType = "ui") {
     const int = scutil.get(player, "rpg.int_do") || 0;
     const agi = scutil.get(player, "rpg.agi_do") || 0;
     const luk = scutil.get(player, "rpg.luk_do") || 0;
+    const crt = scutil.get(player, "rpg.crt_do") || 0;
+    const res = scutil.get(player, "rpg.res_do") || 0;
     const hpregen = scutil.get(player, "rpg.hpregen_do") || 0;
     const mpregen = scutil.get(player, "rpg.mpregen_do") || 0;
 
@@ -46,6 +48,8 @@ export function showStatus(player, displayType = "ui") {
     statsBlock += `知力(INT): §5${int}§r\n`;
     statsBlock += `敏捷(AGI): §e${agi}§r\n`;
     statsBlock += `運(LUK): §6${luk}§r\n`;
+    statsBlock += `クリ率(CRT): §6${crt}%§r\n`; // CRTは%表示
+    statsBlock += `魔防(RES): §3${res}§r\n`;
     statsBlock += `HP回復力: §a${hpregen}§r\n`;
     statsBlock += `MP回復力: §b${mpregen}§r\n`;
     statsBlock += `§l§c=================§r\n`;

@@ -5,16 +5,21 @@ import SkillSystem from "./player/skill/skillsystem";
 import Memory from "./memory";
 import KillTracker from "./player/kill/killTracker";
 import util from "../util";
+import { DyPro } from "../dypro";
 export default class {
     /**
      * エンティティに独自ダメージを適用するタグを付与する
      * @param {import("@minecraft/server").Entity} entity 
      * @param {number} damage 
-     * @param {{reference?: string, damagerId?: string}} options 
+     * @param {Object} options 
+     * @param {string} [options.reference] ダメージ計算の数式 (例: "rpg.str * 2")
+     * @param {string} [options.damagerId] 攻撃者のエンティティID
+     * @param {"none"|"physic"|"magic"} [options.damageType="none"] ダメージタイプ
      */
-    static damage(entity, damage, { reference, damagerId } = {}) {
+    static damage(entity, damage, options = {}) {
+        const { reference, damagerId = "none", damageType = "none" } = options;
 
-        let tag = `rpg:damaged_${damage}_${damagerId || "none"}`;
+        let tag = `rpg:damaged_${damage}_${damagerId}@${damageType}`;
         if (reference) {
             tag += `#${reference}`;
         }
@@ -43,7 +48,7 @@ export default class {
             }
         } else {
             entity.kill();
-            
+
             // 攻撃したプレイヤーを特定する
             let killer = null;
             if (killerId) {
@@ -61,17 +66,34 @@ export default class {
                 // キルカウントを増やす (IDとファミリーを記録)
                 const families = entity.getComponent("minecraft:type_family")?.getTypeFamilies() || [];
                 KillTracker.increment(killer, entity.typeId, families);
-                
+
                 // スキルトリガー発火
-                SkillSystem.trigger(killer, "kill", { 
+                SkillSystem.trigger(killer, "kill", {
                     target: entity.typeId,
                     target_family: families
                 });
             }
 
             if (mobdata[entity.typeId]) {
-                reward(entity, mobdata[entity.typeId]["exp"], mobdata[entity.typeId]["money"]);
+                reward(entity, mobdata[entity.typeId]["exp"], mobdata[entity.typeId]["money"], killerId);
             }
         }
+    }
+
+    /**
+     * @param {import("@minecraft/server").Entity} entity 
+     * @param {number} seconds 
+     * @param {Object} [options={}]
+     * @param {number} [options.damage=1]
+     * @param {string} [options.damagerId="none"]
+     */
+    static fire(entity, seconds, { damage = 1, damagerId = "none" } = {}) {
+        if (!entity.isValid) return;
+        entity.setOnFire(seconds, true);
+
+        // 火ダメージ設定を保存 (Memoryは数値専用なため、文字列IDを扱えるDyProを使用)
+        const dy = new DyPro("fire", entity);
+        dy.set("damage", damage);
+        dy.set("damagerId", damagerId);
     }
 }

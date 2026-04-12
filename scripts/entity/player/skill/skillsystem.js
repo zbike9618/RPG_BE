@@ -242,22 +242,28 @@ export default class SkillSystem {
         const allSkills = skill.get(player);
         for (const [sId, mySkillVar] of Object.entries(allSkills)) {
             const sData = skillData[sId];
-            if (!sData || !sData.sc) continue;
+            // type: 0 (パッシブ) かつ sc を持つもののみ対象
+            if (!sData || !sData.sc || sData.type !== 0) continue;
 
-            const conds = sData.sc.conditions;
-            const isAlways = !conds || conds.length === 0 || conds.some(c => c.type === "always");
-            if (!isAlways) continue;
-            // セットされていないスキルはパーセント補正を与えない
+            // セットされていないスキルは無視
             if (!skill.isSet(player, sId)) continue;
+
+            // 条件チェック (空の場合は true)
+            const conds = sData.sc.conditions;
+            const isActive = this.checkConditions(player, conds, {}, mySkillVar);
 
             const percentList = sData.sc.result?.status?.percent;
             if (!percentList) continue;
 
             for (const pData of percentList) {
-                const val = this.evaluateValue(player, pData.value, mySkillVar);
-                // スキルIDをプレフィックスにすることでスキル由来の補正と識別できる
                 const modId = pData.id || `skill_${sId}_${pData.type}`;
-                StatusModifier.add(player, pData.type, modId, Math.floor(val));
+                if (isActive) {
+                    const val = this.evaluateValue(player, pData.value, mySkillVar);
+                    StatusModifier.add(player, pData.type, modId, Math.floor(val));
+                } else {
+                    // 条件を満たしていない場合は補正を解除
+                    StatusModifier.remove(player, pData.type, modId);
+                }
             }
         }
     }
@@ -269,26 +275,24 @@ export default class SkillSystem {
      * @param {string} statType "str", "hp" など
      */
     static calcPassiveBonus(player, statType) {
-        // hp と mp は非可逆な改変として executeResult で処理するため、ここでは入れない
+        // hp と mp は非可逆な改変として trigger -> executeResult で処理するため、ここでは入れない
         if (statType === "hp" || statType === "mp") return 0;
 
         let total = 0;
         const allSkills = skill.get(player);
         for (const [sId, mySkillVar] of Object.entries(allSkills)) {
             const sData = skillData[sId];
-            if (!sData || !sData.sc) continue;
-            // セットされていないスキルはパッシブボーナスを与えない
+            if (!sData || !sData.sc || sData.type !== 0) continue;
             if (!skill.isSet(player, sId)) continue;
 
+            // 条件チェック
             const conds = sData.sc.conditions;
-            const isAlways = !conds || conds.length === 0 || conds.some(c => c.type === "always");
+            const isActive = this.checkConditions(player, conds, {}, mySkillVar);
 
-            if (isAlways) {
+            if (isActive) {
                 const addList = sData.sc.result?.status?.add;
                 if (addList) {
                     for (const addData of addList) {
-                        // hp/mp は除外する（executeResult で非可逆適用）
-                        if (addData.type === "hp" || addData.type === "mp") continue;
                         if (addData.type === statType) {
                             total += this.evaluateValue(player, addData.value, mySkillVar);
                         }

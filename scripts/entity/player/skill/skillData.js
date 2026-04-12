@@ -186,5 +186,53 @@ export default {
                 }
             ]
         }
+    },
+    "fireball": {
+        name: "ファイアボール",
+        description: "前方に火球を放つ",
+        getdescription: "INTを50以上にする",
+        type: 1,
+        sc: {
+            getconditions: [
+                {
+                    type: "status",
+                    operation: ">=",
+                    value: "#status.int",
+                    value2: 50
+                }
+            ]
+        }
+    },
+    "heal_light": {
+        name: "ヒールライト",
+        description: "自身のHPを回復する",
+        getdescription: "INTを30以上にする",
+        type: 1,
+        sc: {
+            getconditions: [
+                {
+                    type: "status",
+                    operation: ">=",
+                    value: "#status.int",
+                    value2: 30
+                }
+            ]
+        }
+    },
+    "babble_shot": {
+        name: "バブルショット",
+        description: "前方に泡を放つ",
+        getdescription: "INTを50以上にする",
+        type: 1,
+        sc: {
+            getconditions: [
+                {
+                    type: "status",
+                    operation: ">=",
+                    value: "#status.int",
+                    value2: 50
+                }
+            ]
+        }
     }
 }

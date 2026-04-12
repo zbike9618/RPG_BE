@@ -22,11 +22,16 @@ world.afterEvents.entitySpawn.subscribe((ev) => {
         const str = mdata.str + ((mdata.perLevel?.str || 0) * (lv - 1));
         const def = mdata.def + ((mdata.perLevel?.def || 0) * (lv - 1));
         const int = mdata.int + ((mdata.perLevel?.int || 0) * (lv - 1));
+        const agi = (mdata.agi || 0) + ((mdata.perLevel?.agi || 0) * (lv - 1));
+        const res = (mdata.res || 0) + ((mdata.perLevel?.res || 0) * (lv - 1));
 
-        scutil.set(entity, "rpg.maxhp_do", maxhp);
+        scutil.set(entity, "rpg.maxhp_save", maxhp);
         scutil.set(entity, "rpg.hp", maxhp);
-        scutil.set(entity, "rpg.str_do", str);
-        scutil.set(entity, "rpg.def_do", def);
-        scutil.set(entity, "rpg.int_do", int);
+        scutil.set(entity, "rpg.str_save", str);
+        scutil.set(entity, "rpg.def_save", def);
+        scutil.set(entity, "rpg.int_save", int);
+        scutil.set(entity, "rpg.agi_save", agi);
+        scutil.set(entity, "rpg.res_save", res);
+        entity.addTag("rpg.is_spawned");
     }
 });

@@ -19,6 +19,8 @@ export const addObj = [
     "rpg.agi_do",
     "rpg.luk_do",
     "rpg.kb_do",
+    "rpg.crt_do",
+    "rpg.res_do",
     //save_statue
     "rpg.maxhp_save",
     "rpg.maxmp_save",
@@ -30,6 +32,8 @@ export const addObj = [
     "rpg.agi_save",
     "rpg.luk_save",
     "rpg.kb_save",
+    "rpg.crt_save",
+    "rpg.res_save",
     //other
     "rpg.invincibility",
     "rpg.hpbar_timer",

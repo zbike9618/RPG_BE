@@ -113,9 +113,9 @@ result: {
 
 * **`#` (システム変数参照)**:
   * `#attack.damage`: 現在与えたダメージ量
-  * `#kill_count`: (**重要: contextual**) `type: "kill"` の条件内で、そのモブやファミリーに合致した討伐数を自動的に返します。
-  * `#kill_total`: 全てのモブの合計討伐数
-  * `#kill.minecraft:zombie`: 指定したIDのモブの討伐数を直接参照
+  * `#kill_count`: (**重要: contextual**) `type: "kill"` の条件内で、そのモブやファミリーに合致した討伐数を自動的に返します。フィルタ解除時は合計討伐数（Memory: kill_count）になります。
+  * `#kill_total`: 全てのモブの合計討伐数（Memoryの `kill_count` スロットを参照）
+  * `#kill.minecraft:zombie`: 指定したIDのモブの討伐数を直接参照 (DyPro)
   * `#memory.KEY`: `Memory` システムに保存されている `KEY` の数値を参照
   * `#status.hp`, `#status.mp`, `#status.maxhp`, `#status.maxmp`: 各種ステータス
   * `#status.hpregen`, `#status.mpregen`: 自然回復量

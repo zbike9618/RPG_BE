@@ -1,4 +1,6 @@
 import { DyPro } from "../../../dypro";
+import skillData from "./skillData";
+import config from "../../../config";
 
 export default class {
     /**
@@ -35,6 +37,8 @@ export default class {
             delete skills[skillId];
             const dp = new DyPro("rpg", player);
             dp.set("skills", skills);
+            // セット内容からも削除
+            this.unsetSkill(player, skillId);
         }
     }
 
@@ -77,19 +81,32 @@ export default class {
     }
 
     /**
-     * スキルをセットする（習得している場合のみセット可能）
+     * スキルをセットする（習得している場合のみセット可能。設定の上限数を守る）
      * @param {import("@minecraft/server").Player} player 
      * @param {string} skillId 
      */
     static setSkill(player, skillId) {
-        if (!this.have(player, skillId)) return; // 習得していないスキルはセットできない
+        if (!this.have(player, skillId)) return "§c[Skill] そのスキルを習得していません。";
 
         const setSkills = this._getSetAll(player);
-        if (!setSkills.includes(skillId)) {
-            setSkills.push(skillId);
-            const dp = new DyPro("rpg", player);
-            dp.set("set_skills", setSkills);
+        if (setSkills.includes(skillId)) return "§c[Skill] 既にセットされています。";
+
+        const sData = skillData[skillId];
+        if (!sData) return "§c[Skill] スキルデータが見つかりません。";
+
+        // 上限チェック
+        const currentCount = setSkills.filter(id => skillData[id]?.type === sData.type).length;
+        const max = sData.type === 1 ? config.maxActiveSkills : config.maxPassiveSkills;
+        const typeName = sData.type === 1 ? "アクティブ" : "パッシブ";
+
+        if (currentCount >= max) {
+            return `§c[Skill] ${typeName}スキルの装備上限（${max}個）に達しています。`;
         }
+
+        setSkills.push(skillId);
+        const dp = new DyPro("rpg", player);
+        dp.set("set_skills", setSkills);
+        return true;
     }
 
     /**
@@ -103,6 +120,11 @@ export default class {
             setSkills = setSkills.filter(s => s !== skillId);
             const dp = new DyPro("rpg", player);
             dp.set("set_skills", setSkills);
+
+            // 選択中のスキルが外された場合の処理
+            if (this.getSelectedSkill(player) === skillId) {
+                this.setSelectedSkill(player, "");
+            }
         }
     }
 
@@ -122,5 +144,49 @@ export default class {
      */
     static isSet(player, skillId) {
         return this._getSetAll(player).includes(skillId);
+    }
+
+    // ==========================================
+    // ここから「現在選択されているアクティブスキル」の管理
+    // ==========================================
+
+    /**
+     * 現在選択中のアクティブスキルIDを取得
+     */
+    static getSelectedSkill(player) {
+        const dp = new DyPro("rpg", player);
+        return dp.get("selected_active_skill") || "";
+    }
+
+    /**
+     * アクティブスキルを選択状態にする
+     */
+    static setSelectedSkill(player, skillId) {
+        const dp = new DyPro("rpg", player);
+        dp.set("selected_active_skill", skillId);
+    }
+
+    /**
+     * セットされているアクティブスキルを1つずつ順に切り替える（サイクル）
+     */
+    static cycleSelectedSkill(player) {
+        const setSkills = this.getSetSkills(player);
+        const activeSet = setSkills.filter(id => skillData[id]?.type === 1);
+
+        if (activeSet.length === 0) {
+            this.setSelectedSkill(player, "");
+            return null;
+        }
+
+        const current = this.getSelectedSkill(player);
+        let currentIndex = activeSet.indexOf(current);
+
+        // 次のスキルを選択（見つからない場合は最初）
+        const nextIndex = (currentIndex + 1) % activeSet.length;
+        const nextSkill = activeSet[nextIndex];
+
+        this.setSelectedSkill(player, nextSkill);
+        player.sendMessage(`§e${skillData[nextSkill]?.name || nextSkill} §rをセットしました`);
+        return nextSkill;
     }
 }

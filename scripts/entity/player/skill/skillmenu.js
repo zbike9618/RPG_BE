@@ -2,10 +2,9 @@ import * as server from "@minecraft/server";
 import { ActionFormData } from "@minecraft/server-ui";
 import skill from "./skill";
 import skillData from "./skillData";
+import config from "../../../config";
 
 const { world, system } = server;
-
-const MAX_SET = 5;
 
 /**
  * スキルメニューのトップ画面 (タイプ選択)
@@ -20,160 +19,123 @@ export function showSkillMenu(player) {
 
     form.show(player).then(res => {
         if (res.canceled || res.selection === undefined) return;
-        if (res.selection === 0) showPassiveMenu(player);
-        if (res.selection === 1) showActiveMenu(player);
+        if (res.selection === 0) showTypeMenu(player, 0);
+        if (res.selection === 1) showTypeMenu(player, 1);
     });
 }
 
-// ==============================================
-// パッシブスキル
-// ==============================================
-
 /**
- * パッシブスキルのサブメニュー
+ * 各スキルタイプのメインメニュー (パッシブ/アクティブ共通)
+ * @param {import("@minecraft/server").Player} player 
+ * @param {number} type 0:パッシブ, 1:アクティブ
  */
-function showPassiveMenu(player) {
+function showTypeMenu(player, type) {
+    const isPassive = type === 0;
+    const title = isPassive ? "§l§aパッシブスキル" : "§l§9アクティブスキル";
+    const color = isPassive ? "§a" : "§9";
+    const max = isPassive ? config.maxPassiveSkills : config.maxActiveSkills;
+
     const allSkills = skill.get(player);
-    const passiveCount = Object.keys(allSkills).filter(id => skillData[id]?.type === 0).length;
-    const setCount = skill.getSetSkills(player).filter(id => skillData[id]?.type === 0).length;
+    const count = Object.keys(allSkills).filter(id => skillData[id]?.type === type).length;
+    const setCount = skill.getSetSkills(player).filter(id => skillData[id]?.type === type).length;
 
     const form = new ActionFormData()
-        .title("§l§aパッシブスキル")
-        .body(`§2所持: §e${passiveCount}スキル  §2|  セット: §a${setCount}§2/§a${MAX_SET}`)
-        .button(`§aセット管理\n§8装備するスキルを選ぶ (${setCount}/${MAX_SET})`)
-        .button(`§b一覧\n§8所持スキルを確認する (${passiveCount}個)`)
+        .title(title)
+        .body(`§2所持: §e${count}スキル  §2|  セット: ${color}${setCount}§2/${color}${max}`)
+        .button(`§aセット管理\n§8装備するスキルを選ぶ (${setCount}/${max})`)
+        .button(`§b一覧\n§8所持スキルを確認する (${count}個)`)
         .button("§2← 戻る");
 
     form.show(player).then(res => {
         if (res.canceled) return;
-        if (res.selection === 0) showPassiveSetMenu(player);
-        if (res.selection === 1) showPassiveListMenu(player);
+        if (res.selection === 0) showSetMenu(player, type);
+        if (res.selection === 1) showListMenu(player, type);
         if (res.selection === 2) showSkillMenu(player);
     });
 }
 
 /**
- * パッシブスキル セット管理メニュー
- * ● = セット中 (緑), ○ = 未セット (赤)
+ * セット管理メニュー (パッシブ/アクティブ共通)
  */
-function showPassiveSetMenu(player) {
-    const allSkills = skill.get(player);
-    const passiveIds = Object.keys(allSkills).filter(id => skillData[id]?.type === 0);
+function showSetMenu(player, type) {
+    const isPassive = type === 0;
+    const max = isPassive ? config.maxPassiveSkills : config.maxActiveSkills;
+    const color = isPassive ? "§a" : "§9";
+    const typeIds = Object.keys(skill.get(player)).filter(id => skillData[id]?.type === type);
     const setSkills = skill.getSetSkills(player);
-    const setCount = setSkills.filter(id => skillData[id]?.type === 0).length;
+    const setCount = setSkills.filter(id => skillData[id]?.type === type).length;
 
-    if (passiveIds.length === 0) {
+    if (typeIds.length === 0) {
         new ActionFormData()
             .title("§l§6セット管理")
-            .body("§c習得したパッシブスキルがありません。")
+            .body(`§c習得した${isPassive ? "パッシブ" : "アクティブ"}スキルがありません。`)
             .button("§2戻る")
-            .show(player).then(() => showPassiveMenu(player));
+            .show(player).then(() => showTypeMenu(player, type));
         return;
     }
 
     const form = new ActionFormData()
-        .title(`§l§aセット管理  §r§a${setCount}§2/§2${MAX_SET}`)
+        .title(`§l${color}セット管理  §r${color}${setCount}§2/§2${max}`)
         .body("§2スキルを押してセット / 解除できます\n§a●§2 = セット中  §c○§2 = 未セット");
 
-    for (const id of passiveIds) {
+    for (const id of typeIds) {
         const sd = skillData[id];
-        const varData = allSkills[id] || {};
-        const stage = varData.stage !== undefined ? varData.stage : null;
-
-        let displayName = sd.name;
-        if (sd.level && stage !== null && sd.level[stage]?.name) {
-            displayName += ` §2[§e${sd.level[stage].name}§2]`;
-        }
-
-        const isSet = skill.isSet(player, id);
+        const isSet = setSkills.includes(id);
         const prefix = isSet ? "§a● " : "§c○ ";
-        const desc = sd.description ? sd.description.substring(0, 24) : "";
-        form.button(`${prefix}§2${displayName}\n§8${desc}`);
+        form.button(`${prefix}§2${sd.name}\n§8${sd.description?.substring(0, 24) || ""}`);
     }
     form.button("§2← 戻る");
 
     form.show(player).then(res => {
         if (res.canceled) return;
-        if (res.selection === passiveIds.length) {
-            showPassiveMenu(player);
+        if (res.selection === typeIds.length) {
+            showTypeMenu(player, type);
             return;
         }
 
-        const selectedId = passiveIds[res.selection];
-        const isSet = skill.isSet(player, selectedId);
-        const currentSetCount = skill.getSetSkills(player).filter(id => skillData[id]?.type === 0).length;
-        const sdName = skillData[selectedId]?.name ?? selectedId;
-
-        if (isSet) {
-            // 解除
+        const selectedId = typeIds[res.selection];
+        const isCurrentlySet = skill.isSet(player, selectedId);
+        
+        if (isCurrentlySet) {
             skill.unsetSkill(player, selectedId);
-            player.sendMessage(`§2[スキル] §2${sdName} §2のセットを解除しました`);
-            showPassiveSetMenu(player);
+            player.sendMessage(`§2[Skill] §2${skillData[selectedId].name} §2のセットを解除しました。`);
         } else {
-            // セット追加
-            if (currentSetCount >= MAX_SET) {
-                new ActionFormData()
-                    .title("§c§lセット上限")
-                    .body(`§cセットできるスキルは最大 §l${MAX_SET}個§r§c までです。\n先に別のスキルを解除してください。`)
-                    .button("§2戻る")
-                    .show(player).then(() => showPassiveSetMenu(player));
-                return;
+            const result = skill.setSkill(player, selectedId);
+            if (result === true) {
+                player.sendMessage(`§a[Skill] §2${skillData[selectedId].name} §aをセットしました。`);
+            } else if (typeof result === "string") {
+                player.sendMessage(result);
             }
-            skill.setSkill(player, selectedId);
-            player.sendMessage(`§a[スキル] §2${sdName} §aをセットしました`);
-            showPassiveSetMenu(player);
         }
+        showSetMenu(player, type);
     });
 }
 
 /**
- * パッシブスキル 一覧メニュー
- * スキルをタップすると詳細が表示される
+ * 一覧メニュー (パッシブ/アクティブ共通)
  */
-function showPassiveListMenu(player) {
-    const allSkills = skill.get(player);
-    const passiveIds = Object.keys(allSkills).filter(id => skillData[id]?.type === 0);
-
-    if (passiveIds.length === 0) {
-        new ActionFormData()
-            .title("§l§6スキル一覧")
-            .body("§c習得したパッシブスキルがありません。")
-            .button("§2戻る")
-            .show(player).then(() => showPassiveMenu(player));
-        return;
-    }
+function showListMenu(player, type) {
+    const isPassive = type === 0;
+    const typeIds = Object.keys(skill.get(player)).filter(id => skillData[id]?.type === type);
 
     const form = new ActionFormData()
-        .title("§l§bパッシブスキル一覧")
-        .body(`§2習得済みスキル: §e${passiveIds.length}個`);
+        .title(isPassive ? "§l§bパッシブスキル一覧" : "§l§bアクティブスキル一覧")
+        .body(`§2習得済みスキル: §e${typeIds.length}個`);
 
-    for (const id of passiveIds) {
+    for (const id of typeIds) {
         const sd = skillData[id];
-        const varData = allSkills[id] || {};
-        const stage = varData.stage !== undefined ? varData.stage : null;
-
-        let displayName = sd.name;
-        let levelTag = "";
-        if (sd.level && stage !== null && sd.level[stage]?.name) {
-            levelTag = ` §e[${sd.level[stage].name}]`;
-        }
-        const isMax = sd.level ? stage === sd.level.length - 1 : false;
-        const maxTag = isMax ? " §6[MAX]" : "";
         const setTag = skill.isSet(player, id) ? " §a[SET]" : "";
-
-        const desc = sd.description ? sd.description.substring(0, 24) : "";
-        form.button(`§2${displayName}${levelTag}${maxTag}${setTag}\n§8${desc}`);
+        form.button(`§2${sd.name}${setTag}\n§8${sd.description?.substring(0, 24) || ""}`);
     }
     form.button("§2← 戻る");
 
     form.show(player).then(res => {
         if (res.canceled) return;
-        if (res.selection === passiveIds.length) {
-            showPassiveMenu(player);
+        if (res.selection === typeIds.length) {
+            showTypeMenu(player, type);
             return;
         }
-        // 詳細表示 → 戻ったら一覧に戻る
-        showSkillDetail(player, passiveIds[res.selection], () => showPassiveListMenu(player));
+        showSkillDetail(player, typeIds[res.selection], () => showListMenu(player, type));
     });
 }
 
@@ -196,11 +158,8 @@ function showSkillDetail(player, skillId, backCallback) {
         const next = sd.level[stage + 1];
         if (cur?.name) displayName += ` ${cur.name}`;
         levelLine = `\n§2レベル: §e${cur?.name ?? "-"} §2(${stage + 1} / ${sd.level.length})`;
-        if (next) {
-            levelLine += `\n§2次: §b${next.name ?? "?"}`;
-        } else {
-            levelLine += "\n§6§lMAX LEVEL";
-        }
+        if (next) levelLine += `\n§2次: §b${next.name ?? "?"}`;
+        else levelLine += "\n§6§lMAX LEVEL";
     }
 
     const lines = [
@@ -217,14 +176,3 @@ function showSkillDetail(player, skillId, backCallback) {
         .show(player).then(() => { if (backCallback) backCallback(); });
 }
 
-// ==============================================
-// アクティブスキル (未実装)
-// ==============================================
-
-function showActiveMenu(player) {
-    new ActionFormData()
-        .title("§l§9アクティブスキル")
-        .body("§2アクティブスキルは現在準備中です。")
-        .button("§2戻る")
-        .show(player).then(() => showSkillMenu(player));
-}

@@ -104,15 +104,21 @@ export default class {
     }
 
     /**
-     * 指定した座標を中心とした正方形（立方体）の範囲内にいるエンティティを取得する
+     * 指定した座標、または2点間を包む範囲内にいるエンティティを取得する
      * @param {import("@minecraft/server").Dimension} dimension 
-     * @param {import("@minecraft/server").Vector3} pos 中心座標
-     * @param {number} range 中心からの距離（一辺の半分）
+     * @param {import("@minecraft/server").Vector3} pos 開始点
+     * @param {number} range 判定の太さ（拡張幅）
+     * @param {import("@minecraft/server").Vector3} [posB=null] 終了点（指定すると2点間を包む直方体範囲になる）
+     * @param {Object} [options={}]
+     * @param {string[]} [options.excludeTypes] 除外するエンティティタイプID
+     * @param {string[]} [options.excludeIds] 除外するエンティティID
      */
-    static getEntities(dimension, pos, range, posB = null) {
+    static getEntities(dimension, pos, range, posB = null, options = {}) {
+        const { excludeTypes = [], excludeIds = [] } = options;
+
         const broad = dimension.getEntities({
             location: pos,
-            maxDistance: range + 10
+            maxDistance: posB ? Math.hypot(pos.x - posB.x, pos.y - posB.y, pos.z - posB.z) + range + 5 : range + 5
         });
 
         const centerA = posB ? {
@@ -129,6 +135,9 @@ export default class {
 
         return broad.filter(entity => {
             if (!entity.isValid) return false;
+            if (excludeIds.includes(entity.id)) return false;
+            if (excludeTypes.includes(entity.typeId)) return false;
+
             try {
                 const { extent: extB, center: cb } = entity.getAABB();
                 return Math.abs(centerA.x - cb.x) <= (extentA.x + extB.x) &&

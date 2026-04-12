@@ -5,6 +5,7 @@ import { damageIndicator } from "./mob/damageIndicator";
 import entityPatch from "./entityPatch";
 import SkillSystem from "./player/skill/skillsystem";
 import Memory from "./memory";
+import { DyPro } from "../dypro";
 const { world, system } = server;
 
 // simpleEvalは util.js 側に移行しました
@@ -62,16 +63,26 @@ system.runInterval(() => {
                 // tagData は damagerId または damagerId#formula の形式
                 const tagData = split.slice(2).join("_");
 
+                let damageType = "none";
                 let refEntity = null;
                 let formula = null;
 
                 if (tagData) {
-                    let damagerId = tagData;
+                    let mainData = tagData;
                     if (tagData.includes("#")) {
                         const parts = tagData.split("#");
-                        damagerId = parts[0];
-                        // 複数#が含まれる可能性は低いが安全のため結合
+                        mainData = parts[0];
                         formula = parts.slice(1).join("#");
+                    }
+
+                    // damageTypeの抽出 (damagerId@damageType)
+                    let damagerId = "none";
+                    if (mainData.includes("@")) {
+                        const parts = mainData.split("@");
+                        damagerId = parts[0];
+                        damageType = parts[1];
+                    } else {
+                        damagerId = mainData;
                     }
 
                     if (damagerId !== "none") {
@@ -110,8 +121,8 @@ system.runInterval(() => {
                     // ジャンプアタック(落下中)判定
                     const vel = refEntity.getVelocity();
                     if (!refEntity.isOnGround && vel.y < 0) {
-                        const luk = scutil.get(refEntity, "rpg.luk_do") || 0;
-                        const critProb = luk / 1500 + 0.3 // ★ここにクリティカル率の計算
+                        const crt = scutil.get(refEntity, "rpg.crt_do") || 0;
+                        const critProb = (crt / 100) // ステータスベースのクリティカル率 + LUK補正
 
                         if (Math.random() < critProb) {
                             damage = Math.floor(damage * 1.5); // 1.5倍ダメージ
@@ -139,16 +150,23 @@ system.runInterval(() => {
                     }
 
                 }
-                const def = scutil.get(entity, "rpg.def_do") || 0;
                 //----防御判定---------
-                if (damage > 0 && def > 0) {
-                    // 防御力の数値分だけダメージを減算。最低でも1ダメージは与える(0にはならない)
-                    if (def >= damage * 3) {
-                        damage = 1;
+                if (damage > 0) {
+                    let defense = 0;
+                    if (damageType === "physic") {
+                        defense = scutil.get(entity, "rpg.def_do") || 0;
+                    } else if (damageType === "magic") {
+                        defense = scutil.get(entity, "rpg.res_do") || 0;
                     }
-                    else {
 
-                        damage = Math.floor((damage * 200) / (def * 2 + 200));
+                    if (damageType !== "none" && defense > 0) {
+                        if (defense >= damage * 3) {
+                            damage = 1;
+                        } else {
+                            damage = Math.floor((damage * 200) / (defense * 2 + 200));
+                        }
+                    } else if (damageType !== "none") {
+                        damage = Math.max(1, damage);
                     }
                 }
 
@@ -188,3 +206,25 @@ system.runInterval(() => {
         }
     }
 })
+// 火属性の継続ダメージ (FireTick) をカスタムダメージに変換
+world.beforeEvents.entityHurt.subscribe(
+    /**@type {server.EntityHurtEvent} */
+    ev => {
+
+        const { hurtEntity, damageSource } = ev;
+        if (!hurtEntity.isValid) return;
+
+        // FireTick（延焼ダメージ）のみを対象にする
+        if (damageSource.cause === server.EntityDamageCause.fireTick) {
+            ev.cancel = true;
+            system.run(() => {
+                const dy = new DyPro("fire", hurtEntity);
+                const fireDamage = dy.get("damage") || 1;
+                const fireDamagerId = dy.get("damagerId") || "none";
+
+                // カスタムダメージとして再適用（インジケーター表示のため）
+                entityPatch.damage(hurtEntity, fireDamage, { damagerId: fireDamagerId, damageType: "magic" });
+            })
+        }
+
+    });
