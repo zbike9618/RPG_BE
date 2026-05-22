@@ -76,10 +76,11 @@ export function setStatus(entity) {
         totalPercent += buffBonus.percent; // バフ由来
 
         // 最終計算: (基礎値 + 加算) * (1 + 割合/100)
-        result = Math.floor(result * (1 + totalPercent / 100));
+        result = result * (1 + totalPercent / 100);
 
         //-----------------------------------------------------
-        scutil.set(entity, doscorename, result);
+        const finalValue = isNaN(result) ? 0 : Math.floor(result);
+        scutil.set(entity, doscorename, finalValue);
     }
 
     if (isPlayer) {

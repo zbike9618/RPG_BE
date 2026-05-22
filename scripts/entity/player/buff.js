@@ -127,4 +127,20 @@ export default class Buff {
         delete meta[id];
         dp.set("data", meta);
     }
+
+    /**
+     * 全てのバフを強制解除する
+     * @param {import("@minecraft/server").Player} player 
+     */
+    static clearAll(player) {
+        if (!player) return;
+        const slots = Memory.dump(player);
+        for (const slot of slots) {
+            if (slot.id.startsWith("bf_")) {
+                Memory.free(player, slot.id);
+            }
+        }
+        const dp = new DyPro("buff_meta", player);
+        dp.set("data", {});
+    }
 }

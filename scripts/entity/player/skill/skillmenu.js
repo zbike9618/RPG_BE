@@ -1,10 +1,8 @@
-import * as server from "@minecraft/server";
-import { ActionFormData } from "@minecraft/server-ui";
+import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
+import weapondata from "../../../weapon/weapondata";
+import config from "../../../config";
 import skill from "./skill";
 import skillData from "./skillData";
-import config from "../../../config";
-
-const { world, system } = server;
 
 /**
  * スキルメニューのトップ画面 (タイプ選択)
@@ -14,13 +12,140 @@ export function showSkillMenu(player) {
     const form = new ActionFormData()
         .title("§l§6スキルメニュー")
         .body("§2スキルのタイプを選択してください")
-        .button("§aパッシブスキル\n§8常時・自動発動型スキル")
-        .button("§9アクティブスキル\n§8手動発動型スキル");
+        .button("§aパッシブスキル\n§8プレイヤーの常時効果")
+        .button("§9アクティブスキル\n§8各武器にセットするスキル");
 
     form.show(player).then(res => {
         if (res.canceled || res.selection === undefined) return;
         if (res.selection === 0) showTypeMenu(player, 0);
-        if (res.selection === 1) showTypeMenu(player, 1);
+        if (res.selection === 1) showWeaponSkillEditor(player);
+    });
+}
+
+/**
+ * インベントリ内の武器をドロップダウンで選択して編集する画面
+ */
+function showWeaponSkillEditor(player) {
+    const container = player.getComponent("minecraft:inventory").container;
+    const validWeapons = []; // { slot: number, item: ItemStack, name: string }
+
+    for (let i = 0; i < container.size; i++) {
+        const item = container.getItem(i);
+        if (item && weapondata[item.typeId]) {
+            validWeapons.push({
+                slot: i,
+                item: item,
+                name: item.typeId.split(":")[1].replace(/_/g, " ").toUpperCase()
+            });
+        }
+    }
+
+    if (validWeapons.length === 0) {
+        player.sendMessage("§c[Skill] 設定可能な武器（weapondata登録済み）がインベントリにありません。");
+        return;
+    }
+
+    const modal = new ModalFormData()
+        .title("§l§e武器スキル詳細設定")
+        .dropdown("§2編集する武器を選択してください (スロット番号: 名前)", validWeapons.map(w => `Slot ${w.slot}: ${w.name}`));
+
+    modal.show(player).then(res => {
+        if (res.canceled || res.formValues === undefined) return;
+        const selectedWeapon = validWeapons[res.formValues[0]];
+
+        // 選択された武器の編集画面へ (一時的に選択スロットをその武器に合わせてからメニューを開くか、専用のslotIndex対応版setSkillを呼ぶ)
+        // ここでは、一時的に selectedSlotIndex を変更して既存の showSetMenu を使い回すか、
+        // もしくはアイテムを直接引数に取る新しい UI を作成します。
+
+        showItemSlotEditor(player, selectedWeapon);
+    });
+}
+
+/**
+ * 特定のアイテムスロットに対するスキル編集画面
+ */
+function showItemSlotEditor(player, weaponData) {
+    const { slot, item, name } = weaponData;
+    const data = item.getDynamicProperty("rpg:skills");
+    let itemSet = [null, null];
+    try {
+        itemSet = data ? JSON.parse(data) : [null, null];
+    } catch { itemSet = [null, null]; }
+
+    const form = new ActionFormData()
+        .title(`§l§e${name} §rの設定`)
+        .body(`§2スロット 1: §f${skillData[itemSet[0]]?.name || "未セット"}\n§2スロット 2: §f${skillData[itemSet[1]]?.name || "未セット"}`)
+        .button("§9スロット 1 を編集")
+        .button("§9スロット 2 を編集")
+        .button("§cスキルを全て外す")
+        .button("§2← 戻る");
+
+    form.show(player).then(res => {
+        if (res.canceled) return;
+        if (res.selection === 0) showSkillPickerForItem(player, weaponData, 0);
+        if (res.selection === 1) showSkillPickerForItem(player, weaponData, 1);
+        if (res.selection === 2) {
+            item.setDynamicProperty("rpg:skills", JSON.stringify([null, null]));
+            player.getComponent("minecraft:inventory").container.setItem(slot, item);
+            player.sendMessage(`§a[Skill] ${name} の全スキルを解除しました。`);
+            showItemSlotEditor(player, weaponData);
+        }
+        if (res.selection === 3) showWeaponSkillEditor(player);
+    });
+}
+
+/**
+ * 特定のアイテムのスロットにセットするスキルを選択する画面
+ */
+function showSkillPickerForItem(player, weaponData, slotIndex) {
+    const { slot, item, name } = weaponData;
+    const allSkills = skill.get(player);
+    const activeIds = Object.keys(allSkills).filter(id => skillData[id]?.type === 1);
+
+    const form = new ActionFormData()
+        .title(`§l§9スロット ${slotIndex + 1} の選択`)
+        .body(`§e${name} §rにセットするスキルを選んでください`);
+
+    for (const id of activeIds) {
+        form.button(`§2${skillData[id].name}`);
+    }
+    form.button("§c解除する");
+    form.button("§2← 戻る");
+
+    form.show(player).then(res => {
+        if (res.canceled) return;
+        if (res.selection === activeIds.length + 1) {
+            showItemSlotEditor(player, weaponData);
+            return;
+        }
+
+        const container = player.getComponent("minecraft:inventory").container;
+        const currentItem = container.getItem(slot); // 最新の状態を取得
+        if (!currentItem) return;
+
+        let itemSet = [null, null];
+        try {
+            const data = currentItem.getDynamicProperty("rpg:skills");
+            itemSet = data ? JSON.parse(data) : [null, null];
+        } catch { itemSet = [null, null]; }
+
+        if (res.selection === activeIds.length) {
+            // 解除
+            itemSet[slotIndex] = null;
+        } else {
+            // セット
+            const selectedId = activeIds[res.selection];
+            // 重複チェック
+            if (itemSet.includes(selectedId) && itemSet.indexOf(selectedId) !== slotIndex) {
+                player.sendMessage("§c[Skill] 別のスロットに既にセットされています。");
+            } else {
+                itemSet[slotIndex] = selectedId;
+            }
+        }
+
+        currentItem.setDynamicProperty("rpg:skills", JSON.stringify(itemSet));
+        container.setItem(slot, currentItem);
+        showItemSlotEditor(player, { ...weaponData, item: currentItem });
     });
 }
 
@@ -74,9 +199,12 @@ function showSetMenu(player, type) {
         return;
     }
 
+    const item = player.getComponent("minecraft:inventory")?.container.getItem(player.selectedSlotIndex);
+    const itemName = item ? item.typeId.split(":")[1].replace(/_/g, " ").toUpperCase() : "None";
+
     const form = new ActionFormData()
         .title(`§l${color}セット管理  §r${color}${setCount}§2/§2${max}`)
-        .body("§2スキルを押してセット / 解除できます\n§a●§2 = セット中  §c○§2 = 未セット");
+        .body(`§2対象アイテム: §e${itemName}\n§7※アクティブスキルは手に持っているアイテムに保存されます\n\n§2スキルを押してセット / 解除できます\n§a●§2 = セット中  §c○§2 = 未セット`);
 
     for (const id of typeIds) {
         const sd = skillData[id];
@@ -95,19 +223,46 @@ function showSetMenu(player, type) {
 
         const selectedId = typeIds[res.selection];
         const isCurrentlySet = skill.isSet(player, selectedId);
-        
+
         if (isCurrentlySet) {
             skill.unsetSkill(player, selectedId);
             player.sendMessage(`§2[Skill] §2${skillData[selectedId].name} §2のセットを解除しました。`);
+            showSetMenu(player, type);
         } else {
-            const result = skill.setSkill(player, selectedId);
-            if (result === true) {
-                player.sendMessage(`§a[Skill] §2${skillData[selectedId].name} §aをセットしました。`);
-            } else if (typeof result === "string") {
-                player.sendMessage(result);
+            if (type === 1) {
+                // アクティブスキルの場合はスロット選択へ
+                const slots = skill.getItemSlots(player);
+                const slotMenu = new ActionFormData()
+                    .title("§l§9スロット選択")
+                    .body(`§2セットするスロットを選んでください\n\n§7スロット1: §f${skillData[slots[0]]?.name || "空き"}\n§7スロット2: §f${skillData[slots[1]]?.name || "空き"}`)
+                    .button("§9スロット 1")
+                    .button("§9スロット 2")
+                    .button("§2← 戻る");
+
+                slotMenu.show(player).then(slotRes => {
+                    if (slotRes.canceled || slotRes.selection === 2) {
+                        showSetMenu(player, type);
+                        return;
+                    }
+                    const result = skill.setSkill(player, selectedId, slotRes.selection);
+                    if (result === true) {
+                        player.sendMessage(`§a[Skill] §2${skillData[selectedId].name} §aをスロット${slotRes.selection + 1}にセットしました。`);
+                    } else if (typeof result === "string") {
+                        player.sendMessage(result);
+                    }
+                    showSetMenu(player, type);
+                });
+            } else {
+                // パッシブスキル
+                const result = skill.setSkill(player, selectedId);
+                if (result === true) {
+                    player.sendMessage(`§a[Skill] §2${skillData[selectedId].name} §aをセットしました。`);
+                } else if (typeof result === "string") {
+                    player.sendMessage(result);
+                }
+                showSetMenu(player, type);
             }
         }
-        showSetMenu(player, type);
     });
 }
 

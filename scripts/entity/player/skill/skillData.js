@@ -219,6 +219,38 @@ export default {
             ]
         }
     },
+    "windstep": {
+        name: "ウィンドステップ",
+        description: "スピードを一定秒間上昇させる",
+        getdescription: "AGIを50以上にする",
+        type: 1,
+        sc: {
+            getconditions: [
+                {
+                    type: "status",
+                    operation: ">=",
+                    value: "#status.agi",
+                    value2: 50
+                }
+            ]
+        }
+    },
+    "paralyze": {
+        name: "パラライズ",
+        description: "周りの敵を麻痺させる",
+        getdescription: "AGIを50以上にする",
+        type: 1,
+        sc: {
+            getconditions: [
+                {
+                    type: "status",
+                    operation: ">=",
+                    value: "#status.agi",
+                    value2: 50
+                }
+            ]
+        }
+    },
     "babble_shot": {
         name: "バブルショット",
         description: "前方に泡を放つ",
@@ -234,5 +266,22 @@ export default {
                 }
             ]
         }
-    }
+    },
+    "unruinfire": {
+        name: "不滅の炎",
+        description: "炎を飛ばす",
+        getdescription: "わかんね",
+        type: 1,
+        sc: {
+            getconditions: [
+                {
+                    type: "status",
+                    operation: ">=",
+                    value: "#status.int",
+                    value2: 50
+                }
+            ]
+        }
+    },
+
 }

@@ -14,7 +14,7 @@ memoryの形式 (DyProに保存)
 */
 
 export default class Memory {
-    static memoryAmount = 16;
+    static memoryAmount = 32;
 
     /**
      * 空きスロットを確保する
@@ -135,6 +135,19 @@ export default class Memory {
             result.push({ slotId: i, id, value });
         }
         return result;
+    }
+    /**
+     * 全スロットを強制解放する (リセット用)
+     * @param {import("@minecraft/server").Entity} entity 
+     */
+    static clearAll(entity) {
+        const dypro = new DyPro("memory", entity);
+        if (entity.typeId == "minecraft:player") entity.sendMessage(`${JSON.stringify(dypro.get("memory"))}`)
+        dypro.set("memory", getInitialData(this.memoryAmount));
+        for (let i = 0; i < this.memoryAmount; i++) {
+            util.score.set(entity, `rpg.memory_${i + 1}`, 0);
+        }
+
     }
 }
 

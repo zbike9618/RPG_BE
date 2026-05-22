@@ -14,10 +14,7 @@ export default class {
     }
 
     /**
-     * スキルを追加（習得）する。すでに持っている場合は上書き。
-     * @param {import("@minecraft/server").Player} player 
-     * @param {string} skillId 
-     * @param {any} [data={}] 変数などのデータ
+     * スキルを追加（習得）する
      */
     static add(player, skillId, data = {}) {
         const skills = this._getAll(player);
@@ -27,9 +24,7 @@ export default class {
     }
 
     /**
-     * スキルを配列から削除（忘れる）する。
-     * @param {import("@minecraft/server").Player} player 
-     * @param {string} skillId 
+     * スキルを削除する
      */
     static remove(player, skillId) {
         let skills = this._getAll(player);
@@ -37,29 +32,21 @@ export default class {
             delete skills[skillId];
             const dp = new DyPro("rpg", player);
             dp.set("skills", skills);
-            // セット内容からも削除
             this.unsetSkill(player, skillId);
         }
     }
 
     /**
-     * 全スキル一覧を取得する、もしくは特定のスキルIDのデータを返す。
-     * @param {import("@minecraft/server").Player} player 
-     * @param {string} [skillId] 
+     * 特定のスキルデータを取得
      */
     static get(player, skillId) {
         const skills = this._getAll(player);
-        if (skillId === undefined) {
-            return skills;
-        }
+        if (skillId === undefined) return skills;
         return skills[skillId];
     }
 
     /**
-     * 特定のスキルを持っている（習得している）かを判定する。
-     * @param {import("@minecraft/server").Player} player 
-     * @param {string} skillId 
-     * @returns {boolean}
+     * スキル習得済みか判定
      */
     static have(player, skillId) {
         const skills = this._getAll(player);
@@ -67,61 +54,108 @@ export default class {
     }
 
     // ==========================================
-    // ここから「セット(装備)しているスキル」の管理
+    // セット管理 (Active = Item Slot / Passive = Player List)
     // ==========================================
 
     /**
-     * 内部用：プレイヤーがセットしているスキル一覧(配列)を取得
+     * 内部用：セットされている全スキルを取得
      * @private 
      */
     static _getSetAll(player) {
         const dp = new DyPro("rpg", player);
-        const setSkills = dp.get("set_skills");
-        return Array.isArray(setSkills) ? setSkills : [];
+        const playerSet = dp.get("set_skills") || [];
+
+        const item = player.getComponent("minecraft:inventory")?.container.getItem(player.selectedSlotIndex);
+        let itemSet = [];
+        if (item) {
+            const data = item.getDynamicProperty("rpg:skills");
+            try {
+                // 固定長 [slot0, slot1] で取得。null の場合は未セット
+                itemSet = data ? JSON.parse(data) : [null, null];
+            } catch { itemSet = [null, null]; }
+        }
+
+        const filteredItemSet = itemSet.filter(s => s !== null);
+        return [...new Set([...playerSet, ...filteredItemSet])];
     }
 
     /**
-     * スキルをセットする（習得している場合のみセット可能。設定の上限数を守る）
-     * @param {import("@minecraft/server").Player} player 
-     * @param {string} skillId 
+     * スキルをセットする
+     * @param {number} [slotIndex] アクティブスキルの場合のスロット番号 (0 or 1)
      */
-    static setSkill(player, skillId) {
+    static setSkill(player, skillId, slotIndex = null) {
         if (!this.have(player, skillId)) return "§c[Skill] そのスキルを習得していません。";
-
-        const setSkills = this._getSetAll(player);
-        if (setSkills.includes(skillId)) return "§c[Skill] 既にセットされています。";
 
         const sData = skillData[skillId];
         if (!sData) return "§c[Skill] スキルデータが見つかりません。";
 
-        // 上限チェック
-        const currentCount = setSkills.filter(id => skillData[id]?.type === sData.type).length;
-        const max = sData.type === 1 ? config.maxActiveSkills : config.maxPassiveSkills;
-        const typeName = sData.type === 1 ? "アクティブ" : "パッシブ";
+        if (sData.type === 0) {
+            // パッシブ：従来通り
+            const dp = new DyPro("rpg", player);
+            const setSkills = dp.get("set_skills") || [];
+            if (setSkills.includes(skillId)) return "§c[Skill] 既にセットされています。";
+            if (setSkills.length >= config.maxPassiveSkills) return "§c[Skill] 装備枠がいっぱいです。";
+            setSkills.push(skillId);
+            dp.set("set_skills", setSkills);
+        } else {
+            // アクティブ：アイテムスロット
+            const container = player.getComponent("minecraft:inventory")?.container;
+            const item = container?.getItem(player.selectedSlotIndex);
+            if (!item) return "§c[Skill] アイテムを持っていないとセットできません。";
 
-        if (currentCount >= max) {
-            return `§c[Skill] ${typeName}スキルの装備上限（${max}個）に達しています。`;
+            const data = item.getDynamicProperty("rpg:skills");
+            let itemSet = [null, null];
+            try {
+                itemSet = data ? JSON.parse(data) : [null, null];
+            } catch { itemSet = [null, null]; }
+
+            // スロット指定がない場合は空きを埋める
+            if (slotIndex === null) {
+                if (itemSet[0] === null) slotIndex = 0;
+                else if (itemSet[1] === null) slotIndex = 1;
+                else return "§c[Skill] スロットがいっぱいです。上書きするにはスロットを選択してください。";
+            }
+
+            // 同一スキルの重複チェック (他方のスロットにある場合)
+            if (itemSet.includes(skillId) && itemSet.indexOf(skillId) !== slotIndex) {
+                return "§c[Skill] 既に別のスロットにセットされています。";
+            }
+
+            itemSet[slotIndex] = skillId;
+            item.setDynamicProperty("rpg:skills", JSON.stringify(itemSet));
+            container.setItem(player.selectedSlotIndex, item);
         }
 
-        setSkills.push(skillId);
-        const dp = new DyPro("rpg", player);
-        dp.set("set_skills", setSkills);
         return true;
     }
 
     /**
-     * セットしているスキルを外す
-     * @param {import("@minecraft/server").Player} player 
-     * @param {string} skillId 
+     * スキルを外す
      */
     static unsetSkill(player, skillId) {
-        let setSkills = this._getSetAll(player);
-        if (setSkills.includes(skillId)) {
-            setSkills = setSkills.filter(s => s !== skillId);
-            const dp = new DyPro("rpg", player);
-            dp.set("set_skills", setSkills);
+        const sData = skillData[skillId];
+        if (!sData) return;
 
-            // 選択中のスキルが外された場合の処理
+        if (sData.type === 0) {
+            const dp = new DyPro("rpg", player);
+            let setSkills = dp.get("set_skills") || [];
+            setSkills = setSkills.filter(s => s !== skillId);
+            dp.set("set_skills", setSkills);
+        } else {
+            const container = player.getComponent("minecraft:inventory")?.container;
+            const item = container?.getItem(player.selectedSlotIndex);
+            if (!item) return;
+
+            let itemSet = [null, null];
+            try {
+                const data = item.getDynamicProperty("rpg:skills");
+                itemSet = data ? JSON.parse(data) : [null, null];
+            } catch { itemSet = [null, null]; }
+
+            const newSet = itemSet.map(s => s === skillId ? null : s);
+            item.setDynamicProperty("rpg:skills", JSON.stringify(newSet));
+            container.setItem(player.selectedSlotIndex, item);
+
             if (this.getSelectedSkill(player) === skillId) {
                 this.setSelectedSkill(player, "");
             }
@@ -129,37 +163,43 @@ export default class {
     }
 
     /**
-     * 現在セットしている全スキルの一覧(配列)を取得する
-     * @param {import("@minecraft/server").Player} player 
+     * 装備しているスキルリストを取得
      */
     static getSetSkills(player) {
         return this._getSetAll(player);
     }
 
     /**
-     * 特定のスキルを現在セットしているかを判定する
-     * @param {import("@minecraft/server").Player} player 
-     * @param {string} skillId 
-     * @returns {boolean}
+     * アクティブスキルのスロット内容を直接取得
+     */
+    static getItemSlots(player) {
+        const item = player.getComponent("minecraft:inventory")?.container.getItem(player.selectedSlotIndex);
+        if (!item) return [null, null];
+        try {
+            const data = item.getDynamicProperty("rpg:skills");
+            return data ? JSON.parse(data) : [null, null];
+        } catch { return [null, null]; }
+    }
+
+    /**
+     * 特定のスキルをセットしているか
      */
     static isSet(player, skillId) {
         return this._getSetAll(player).includes(skillId);
     }
 
-    // ==========================================
-    // ここから「現在選択されているアクティブスキル」の管理
-    // ==========================================
-
     /**
-     * 現在選択中のアクティブスキルIDを取得
+     * 現在選択中のスキルIDを取得
      */
     static getSelectedSkill(player) {
         const dp = new DyPro("rpg", player);
-        return dp.get("selected_active_skill") || "";
+        const selId = dp.get("selected_active_skill") || "";
+        if (selId && !this.isSet(player, selId)) return "";
+        return selId;
     }
 
     /**
-     * アクティブスキルを選択状態にする
+     * スキルを選択状態にする
      */
     static setSelectedSkill(player, skillId) {
         const dp = new DyPro("rpg", player);
@@ -167,11 +207,10 @@ export default class {
     }
 
     /**
-     * セットされているアクティブスキルを1つずつ順に切り替える（サイクル）
+     * サイクル切り替え
      */
     static cycleSelectedSkill(player) {
-        const setSkills = this.getSetSkills(player);
-        const activeSet = setSkills.filter(id => skillData[id]?.type === 1);
+        const activeSet = this.getItemSlots(player).filter(s => s !== null);
 
         if (activeSet.length === 0) {
             this.setSelectedSkill(player, "");
@@ -180,13 +219,11 @@ export default class {
 
         const current = this.getSelectedSkill(player);
         let currentIndex = activeSet.indexOf(current);
-
-        // 次のスキルを選択（見つからない場合は最初）
         const nextIndex = (currentIndex + 1) % activeSet.length;
         const nextSkill = activeSet[nextIndex];
 
         this.setSelectedSkill(player, nextSkill);
-        player.sendMessage(`§e${skillData[nextSkill]?.name || nextSkill} §rをセットしました`);
+        player.sendMessage(`§e${skillData[nextSkill]?.name || nextSkill} §rに切り替え`);
         return nextSkill;
     }
 }

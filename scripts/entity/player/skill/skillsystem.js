@@ -32,7 +32,8 @@ export default class SkillSystem {
 
         // ステータスの置換 (#status.hpなど)
         str = str.replace(/#status\.([a-zA-Z0-9_]+)/g, (match, p1) => {
-            const val = util.score.get(player, `rpg.${p1}`) ?? util.score.get(player, `rpg.${p1}_do`) ?? 0;
+            // _do (補正後) -> _save (基礎値) -> Raw の順で検索
+            const val = util.score.get(player, `rpg.${p1}_do`) ?? util.score.get(player, `rpg.${p1}_save`) ?? util.score.get(player, `rpg.${p1}`) ?? 0;
             return String(val);
         });
         // メモリの置換 (#memory.kill_countなど)

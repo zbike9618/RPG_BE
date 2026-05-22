@@ -1,6 +1,6 @@
 export default {
     // 装備できるアクティブスキルの最大数
-    maxActiveSkills: 3,
+    maxActiveSkills: 2,
     // 装備できるパッシブスキルの最大数
     maxPassiveSkills: 5,
     // スキル選択・実行に使用するアイテムのタグ（このタグを持つアイテムで操作可能にする）

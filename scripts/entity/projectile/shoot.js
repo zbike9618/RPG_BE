@@ -65,25 +65,25 @@ export default class Shoot {
     /**
      * エンティティの視線方向にプロジェクタイルを発射する（TP制御）
      * @param {import("@minecraft/server").Entity} owner 発射したエンティティ
-     * @param {Object} options 発射オプション
-     * @param {string} options.type プロジェクタイルのエンティティID (デフォルト: rpg:projectile)
-     * @param {string} options.customId スキル名などのカスタムID
-     * @param {number} options.speed 発射速度（ブロック/tick） (デフォルト: 1.0)
-     * @param {(projectile: import("@minecraft/server").Entity) => void} options.onTick 飛行中に毎ティック実行される処理
-     * @param {boolean} options.penetrateBlock ブロックを貫通するか (デフォルト: false)
-     * @param {boolean} options.penetrateEntity エンティティを貫通するか (デフォルト: false)
-     * @param {string[]} options.excludeBlocks 当たり判定を除外するブロックIDリスト
-     * @param {string[]} options.excludeEntities 当たり判定を除外するエンティティタイプIDリスト
-     * @param {number} options.maxLife 最大生存時間(tick) (デフォルト: 100)
-     * @param {import("@minecraft/server").Vector3} options.offset 位置オフセット
+     * @param {string|Object} typeOrOptions プロジェクタイルのエンティティID または 発射オプション
+     * @param {Object} [options] 発射オプション (typeOrOptions が ID の場合に使用)
      * @returns {import("@minecraft/server").Entity} 生成されたプロジェクタイル
      */
-    static fire(owner, options = {}) {
+    static fire(owner, typeOrOptions = {}, options = {}) {
+        let finalOptions = {};
+
+        if (typeof typeOrOptions === "string") {
+            finalOptions = { ...options, type: typeOrOptions };
+        } else {
+            finalOptions = { ...typeOrOptions };
+            if (!finalOptions.type) finalOptions.type = "rpg:projectile";
+        }
+
         const {
-            type = "rpg:projectile",
+            type,
             customId = null,
             speed = 1.0,
-            subSteps = Math.ceil(options.speed || 1.0), // 明示的な指定がなければspeedを元に計算
+            subSteps = Math.ceil(finalOptions.speed || 1.0), // 明示的な指定がなければspeedを元に計算
             onTick = null,
             penetrateBlock = false,
             penetrateEntity = false,
@@ -91,7 +91,7 @@ export default class Shoot {
             excludeEntities = projectileConfig.excludeEntities,
             maxLife = 100,
             offset = { x: 0, y: 0.1, z: 0 }
-        } = options;
+        } = finalOptions;
 
         const viewDir = owner.getViewDirection();
         const headLoc = owner.getHeadLocation();

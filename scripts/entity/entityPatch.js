@@ -6,6 +6,9 @@ import Memory from "./memory";
 import KillTracker from "./player/kill/killTracker";
 import util from "../util";
 import { DyPro } from "../dypro";
+import Buff from "./player/buff";
+import Interval from "./interval";
+
 export default class {
     /**
      * エンティティに独自ダメージを適用するタグを付与する
@@ -81,6 +84,7 @@ export default class {
     }
 
     /**
+     * 炎ダメージを付与する
      * @param {import("@minecraft/server").Entity} entity 
      * @param {number} seconds 
      * @param {Object} [options={}]
@@ -91,9 +95,34 @@ export default class {
         if (!entity.isValid) return;
         entity.setOnFire(seconds, true);
 
-        // 火ダメージ設定を保存 (Memoryは数値専用なため、文字列IDを扱えるDyProを使用)
+        // 管理に Memory (スコアボード) を使用して負荷を軽減
+        const endTime = Math.floor(Date.now() / 1000) + seconds;
+        if (!Memory.has(entity, "fire")) {
+            Memory.use(entity, "fire");
+        }
+        Memory.set(entity, "fire", endTime);
+
+        // メタデータ（ダメージ等）は DyPro に保存
         const dy = new DyPro("fire", entity);
         dy.set("damage", damage);
         dy.set("damagerId", damagerId);
+    }
+
+    /**
+     * 麻痺（移動速度減少）を付与する
+     * @param {import("@minecraft/server").Entity} entity 
+     * @param {number} seconds 継続秒数
+     * @param {number} [percent=99] 減少割合
+     */
+    static paralyze(entity, seconds, percent = 99) {
+        if (!entity || !entity.isValid) return;
+
+        // Buffクラスを利用してAGIを割合減少
+        Buff.add(entity, "paralyze", "agi", -percent, "percent", seconds);
+
+        // 麻痺期間中、パーティクルを継続的に発生させる
+        Interval.add(entity, (ent) => {
+            util.expandParticle(ent.dimension, ent.location, 0.5, 2, "rpg:lightning");
+        }, 10, seconds * 20);
     }
 }

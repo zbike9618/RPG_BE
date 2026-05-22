@@ -55,6 +55,9 @@ export function setup(player, { level, exp } = { level: 1, exp: 0 }) {
     scutil.set(player, "rpg.exp", exp);
     scutil.set(player, "rpg.kb_save", 0);
 }
+import Buff from "./buff";
+import Memory from "../memory";
+
 system.afterEvents.scriptEventReceive.subscribe((ev) => {
     if (ev.id === "rpg:setup") {
         const player = ev.sourceEntity;
@@ -71,7 +74,13 @@ system.afterEvents.scriptEventReceive.subscribe((ev) => {
     if (ev.id === "rpg:removeAll") {
         const player = ev.sourceEntity;
         if (player.typeId === "minecraft:player") {
-            skill.remove(player, "attackPower")
+            skill.remove(player, "fireball");
+            skill.remove(player, "windstep");
+
+            // 追加：メモリとバフの全消去
+            Buff.clearAll(player);
+            Memory.clearAll(player);
+            player.sendMessage("§a[System] スキル・メモリ・バフを全てリセットしました。");
         }
     }
     if (ev.id === "rpg:skillMenu") {

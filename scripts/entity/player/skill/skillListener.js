@@ -1,51 +1,72 @@
-import { world, system } from "@minecraft/server";
+import * as server from "@minecraft/server";
 import skill from "./skill";
 import config from "../../../config";
 import ActiveSkillSystem from "./activeSkillSystem";
+import weapondata from "../../../weapon/weapondata";
+
+const { world, system } = server;
 
 /**
- * スキルの操作（選択、実行）を監視するリスナー
+ * 右クリック（アイテム使用）時の処理
  */
 world.afterEvents.itemUse.subscribe((ev) => {
     const player = ev.source;
+    if (!player.isSneaking) return; // Shiftを押していない場合は通常使用
+
     const item = ev.itemStack;
+    if (!isSkillTool(item)) return;
 
-    // config.js で指定されたタグを持つアイテムのみ反応させる
-    // (例: 魔法の杖や魔導書など)
-    let isSkillTool = false;
-    for (const tag of config.skillToolTag) {
-        if (item.getTags().includes(tag)) {
-            isSkillTool = true;
-            break;
-        }
-    }
-    if (!isSkillTool) return;
-    const block = player.getBlockFromViewDirection({ maxDistance: 5 })
-    if (block) {
-        return;
-    }
-
-    // デフォルトの使用（食べる、投げる等）をキャンセル
     system.run(() => {
-        if (!player.isSneaking) {
-            // 【シフト右クリック：スキルの実行】
-            const selectedId = skill.getSelectedSkill(player);
-            if (!selectedId) {
-                player.sendMessage("§c[Skill] スキルが選択されていません。");
-                return;
-            }
-            const skillVar = skill.get(player, selectedId);
-
-            // MP消費などの共通処理が必要な場合はここに追加
-            // 例: if (MP < cost) return;
-
-            ActiveSkillSystem.execute(player, selectedId, skillVar);
-        } else {
-
-            skill.cycleSelectedSkill(player);
-        }
+        // Shift + 右クリック：スロット1のスキルを実行
+        executeItemSkill(player, 0); // スロット1 (Index 0)
     });
 });
 
-// もしユーザーが「シフト+右クリック」だけで全て完結させたい場合（例：空打ちで変更、何かに向かってで実行など）は
-// 要望に合わせて調整が必要ですが、一般的には「通常右クリで切替」「シフト右クリで発動」が直感的です。
+/**
+ * 左クリック（攻撃）時の処理
+ * 攻撃開始イベントを使用してShift+左クリックを検知
+ */
+world.afterEvents.playerSwingStart.subscribe((ev) => {
+    const player = ev.player;
+    if (!player.isSneaking) return;
+    if (ev.swingSource != server.EntitySwingSource.Attack) return;
+    
+    const item = ev.heldItemStack;
+    if (!item || !isSkillTool(item)) return;
+
+    system.run(() => {
+        // Shift + 左クリック：スロット2のスキルを実行
+        executeItemSkill(player, 1); // スロット2 (Index 1)
+    });
+});
+
+/**
+ * スキル実行の共通処理
+ */
+function executeItemSkill(player, slotIndex) {
+    const slots = skill.getItemSlots(player);
+    const selectedId = slots[slotIndex];
+
+    if (!selectedId) {
+        // スロットに何もない場合は何も表示しない（空振りを許容するため）
+        return;
+    }
+
+    const skillVar = skill.get(player, selectedId);
+    ActiveSkillSystem.execute(player, selectedId, skillVar);
+}
+
+/**
+ * 対象アイテムかどうかの判定
+ */
+function isSkillTool(item) {
+    if (!item) return false;
+    // 設定されたタグを持っているかチェック
+    for (const tag of config.skillToolTag) {
+        if (item.getTags().includes(tag)) return true;
+    }
+    // weapondataに登録されている武器かチェック
+    if (weapondata[item.typeId]) return true;
+    
+    return false;
+}

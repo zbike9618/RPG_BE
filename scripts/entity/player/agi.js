@@ -15,8 +15,8 @@ system.runInterval(() => {
     const comp = player.getComponent("minecraft:movement")
     if (!comp) return;
     const def = comp.defaultValue + (player.isSprinting ? 0.03 : 0);
-    //小数点第5位以下切り捨て
-    const number = Math.floor((agi * def * 0.001 + def) * 1000) / 1000;
+    //小数点第5位以下切り捨て、かつ0未満にならないようにガード
+    const number = Math.max(0, Math.floor((agi * def * 0.001 + def) * 1000) / 1000);
     if (number != comp.currentValue) {
         comp.setCurrentValue(number);
     }
