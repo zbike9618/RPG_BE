@@ -18,11 +18,12 @@ export default class {
      * @param {string} [options.reference] ダメージ計算の数式 (例: "rpg.str * 2")
      * @param {string} [options.damagerId] 攻撃者のエンティティID
      * @param {"none"|"physic"|"magic"} [options.damageType="none"] ダメージタイプ
+     * @param {"無"|"炎"|"水"|"土"|"雷"|"悪"|"光"|"風"} [options.element="無"] ダメージの属性
      */
     static damage(entity, damage, options = {}) {
-        const { reference, damagerId = "none", damageType = "none" } = options;
+        const { reference, damagerId = "none", damageType = "none", element = "無" } = options;
 
-        let tag = `rpg:damaged_${damage}_${damagerId}@${damageType}`;
+        let tag = `rpg:damaged_${damage}_${damagerId}@${damageType}&${element}`;
         if (reference) {
             tag += `#${reference}`;
         }

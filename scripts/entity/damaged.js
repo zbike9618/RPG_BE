@@ -6,6 +6,7 @@ import entityPatch from "./entityPatch";
 import SkillSystem from "./player/skill/skillsystem";
 import Memory from "./memory";
 import { DyPro } from "../dypro";
+import mobdata from "./mob/mobdata";
 const { world, system } = server;
 
 // simpleEvalは util.js 側に移行しました
@@ -57,6 +58,46 @@ system.runInterval(() => {
                     continue;
                 }
 
+// 属性相性表 (一律 1.5倍、半減なし)
+const ELEMENT_RELATIONS = {
+    "炎": { "風": 1.5 },
+    "風": { "土": 1.5 },
+    "土": { "雷": 1.5 },
+    "雷": { "水": 1.5 },
+    "水": { "炎": 1.5 },
+    "光": { "悪": 1.5 },
+    "悪": { "光": 1.5 }
+};
+
+/**
+ * 対象の属性・耐性を取得する
+ */
+function getEntityResistances(entity) {
+    const res = {
+        element: "無",
+        physical: 1.0,
+        magic: 1.0
+    };
+
+    if (entity.typeId === "minecraft:player") {
+        const scutil = util.score;
+        res.physical = (scutil.get(entity, "rpg.phys_res") ?? 100) / 100;
+        res.magic = (scutil.get(entity, "rpg.magic_res") ?? 100) / 100;
+        const pElement = scutil.get(entity, "rpg.element");
+        if (typeof pElement === "string") {
+            res.element = pElement;
+        }
+    } else {
+        const mData = mobdata[entity.typeId];
+        if (mData) {
+            if (mData.element) res.element = mData.element;
+            if (mData.physical_resistance !== undefined) res.physical = mData.physical_resistance;
+            if (mData.magic_resistance !== undefined) res.magic = mData.magic_resistance;
+        }
+    }
+    return res;
+}
+
                 const split = tag.split("_");
                 let damage = parseInt(split[1]);
 
@@ -64,6 +105,7 @@ system.runInterval(() => {
                 const tagData = split.slice(2).join("_");
 
                 let damageType = "none";
+                let element = "無";
                 let refEntity = null;
                 let formula = null;
 
@@ -75,12 +117,19 @@ system.runInterval(() => {
                         formula = parts.slice(1).join("#");
                     }
 
-                    // damageTypeの抽出 (damagerId@damageType)
+                    // damageType & element の抽出 (damagerId@damageType&element)
                     let damagerId = "none";
                     if (mainData.includes("@")) {
                         const parts = mainData.split("@");
                         damagerId = parts[0];
-                        damageType = parts[1];
+                        const typeAndEl = parts[1];
+                        if (typeAndEl.includes("&")) {
+                            const tParts = typeAndEl.split("&");
+                            damageType = tParts[0];
+                            element = tParts[1];
+                        } else {
+                            damageType = typeAndEl;
+                        }
                     } else {
                         damagerId = mainData;
                     }
@@ -150,8 +199,18 @@ system.runInterval(() => {
                     }
 
                 }
-                //----防御判定---------
+                //---- 防御・耐性判定 ---------
                 if (damage > 0) {
+                    const resistances = getEntityResistances(entity);
+
+                    // 1. タイプ耐性 (物理/魔法耐性) の適用
+                    if (damageType === "physic") {
+                        damage = damage * resistances.physical;
+                    } else if (damageType === "magic") {
+                        damage = damage * resistances.magic;
+                    }
+
+                    // 2. 従来の防御力による軽減
                     let defense = 0;
                     if (damageType === "physic") {
                         defense = scutil.get(entity, "rpg.def_do") || 0;
@@ -168,6 +227,14 @@ system.runInterval(() => {
                     } else if (damageType !== "none") {
                         damage = Math.max(1, damage);
                     }
+
+                    // 3. 属性相性の適用 (弱点のみ、耐性による半減は適用しない)
+                    if (element && element !== "無" && resistances.element && resistances.element !== "無") {
+                        const rate = ELEMENT_RELATIONS[element]?.[resistances.element] || 1.0;
+                        damage = damage * rate;
+                    }
+
+                    damage = Math.max(1, Math.floor(damage));
                 }
 
 
