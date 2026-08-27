@@ -1,22 +1,14 @@
-
 import util from "../../../../util.js"
-
 import Buff from "../../buff.js"
 
+/** @type {import("../skill").ActiveSkillDefinition} */
 export default {
     id: "paralyze",
     name: "パラライズ",
     description: "周りの敵を麻痴させる",
     getdescription: "AGIを50以上にする",
     sc: {
-        getconditions: [
-            {
-                type: "status",
-                operation: ">=",
-                value: "#status.agi",
-                value2: 50
-            }
-        ]
+        getconditions: "#status.agi >= 50"
     },
     execute(player, skillVar, { needMp, needCool }) {
         if (!needMp(player, 15)) return;

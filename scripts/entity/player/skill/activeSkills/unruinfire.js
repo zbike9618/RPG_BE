@@ -4,20 +4,14 @@ import util from "../../../../util.js"
 import { DyPro } from "../../../../dypro.js"
 import entityPatch from "../../../entityPatch.js"
 
+/** @type {import("../skill").ActiveSkillDefinition} */
 export default {
     id: "unruinfire",
     name: "不滅の炎",
     description: "炎を飛ばす",
     getdescription: "わかんね",
     sc: {
-        getconditions: [
-            {
-                type: "status",
-                operation: ">=",
-                value: "#status.int",
-                value2: 50
-            }
-        ]
+        getconditions: "#status.int >= 50"
     },
     execute(player, skillVar, { needMp, needCool }) {
         if (!needMp(player, 15)) return;

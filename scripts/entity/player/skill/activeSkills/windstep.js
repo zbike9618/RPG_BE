@@ -1,20 +1,14 @@
 import Buff from "../../buff.js";
 import Interval from "../../../interval.js"
 
+/** @type {import("../skill").ActiveSkillDefinition} */
 export default {
     id: "windstep",
     name: "ウィンドステップ",
     description: "スピードを一定秒間上昇させる",
     getdescription: "AGIを50以上にする",
     sc: {
-        getconditions: [
-            {
-                type: "status",
-                operation: ">=",
-                value: "#status.agi",
-                value2: 50
-            }
-        ]
+        getconditions: "#status.agi >= 50"
     },
     execute(player, skillVar, { needMp, needCool }) {
         if (Buff.getList(player).some(b => b.id === "windstep")) return;

@@ -72,3 +72,24 @@ export interface PassiveSkillDefinition {
     level?: SkillLevelDefinition[];
     sc: SkillScriptContext;
 }
+
+export interface ActiveSkillExecuteContext {
+    needMp: (player: Player, amount: number) => boolean;
+    needCool: (tick: number) => boolean;
+}
+
+export interface ActiveSkillDefinition {
+    id: string;
+    name: string;
+    description: string;
+    getdescription?: string;
+    type?: number;
+    variable?: Record<string, any>;
+    level?: SkillLevelDefinition[];
+    sc: SkillScriptContext;
+    execute(
+        player: Player,
+        skillVar: Record<string, any>,
+        context: ActiveSkillExecuteContext
+    ): void;
+}

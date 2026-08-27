@@ -5,20 +5,14 @@ import { DyPro } from "../../../../dypro.js"
 import entityPatch from "../../../entityPatch.js"
 import Buff from "../../buff.js"
 
+/** @type {import("../skill").ActiveSkillDefinition} */
 export default {
     id: "fireball",
     name: "ファイアボール",
     description: "前方に火球を放つ",
     getdescription: "INTを50以上にする",
     sc: {
-        getconditions: [
-            {
-                type: "status",
-                operation: ">=",
-                value: "#status.int",
-                value2: 50
-            }
-        ]
+        getconditions: "#status.int >= 50"
     },
     execute(player, skillVar, { needMp, needCool }) {
         if (!needCool(20)) return;

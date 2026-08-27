@@ -55,7 +55,7 @@
 ---
 
 ## 4. 条件式の記述方法 (Conditions Formulation)
-`conditions`, `getconditions`, `evoconditions` は、従来のオブジェクト配列形式に加え、より直感的でシンプルな**簡易条件式（文字列）**で記述できるようになりました。
+`conditions`, `getconditions`, `evoconditions` は、従来のオブジェクト配列形式に加え、より直感的でシンプルな**簡易条件式（文字列）**で記述できるようになりました。パッシブスキル・アクティブスキルを問わず共通して動作します。
 
 ### 簡易条件式 (推奨)
 ```javascript
@@ -110,7 +110,7 @@ conditions: [
   ```
 
 #### 2. `message` (メッセージ送信)
-プレイヤーに対してメッセージを表示します。`chat` (チャット欄), `actionbar` (ホットバー上のアクションバー), `title` / `subtitle` (画面中央のタイトル表示) に対応しています。文字列内では各種変数やステータスを埋め込んで表示可能です。
+プレイヤーに対してメッセージを表示します。`chat` (チャット欄), `actionbar` (ホットバー上のアクションバー), `title` / `subtitle` (画面中央 of タイトル表示) に対応しています。文字列内では各種変数やステータスを埋め込んで表示可能です。
 * 例:
   ```javascript
   message: {
@@ -142,12 +142,7 @@ conditions: [
 * 例:
   ```javascript
   script: `
-      // プレイヤーのインベントリやタグ、詳細なステータス操作がJSで直接可能
       player.sendMessage("§d[Script] HP: " + player.getComponent("health").currentValue);
-      // 例: クリエイティブモードの時は特別な処理をする等
-      if (player.name === "Steve") {
-          player.addTag("special_user");
-      }
   `
   ```
 
@@ -167,3 +162,38 @@ conditions: [
   * `#memory.KEY`: `Memory` システムに保存されている `KEY` の数値
 * **`v.` (スキル固有変数参照)**:
   * `v.NAME`: スキルの `variable` または現在の `level` から引き継いだ変数 `NAME` の値（例: `v.powerp`）
+
+---
+
+## 7. エディタの型補完 (IntelliSense) の有効化
+エディタ（VS Codeなど）でパッシブスキルやアクティブスキルの定義オブジェクトを記述する際、プロパティや関数の引数の候補が自動で表示されるよう型定義ファイルを準備しています。
+
+### 設定方法
+各スキルファイルの先頭に、対応する JSDoc アノテーションを追加します。
+
+* **パッシブスキルの場合**:
+  ```javascript
+  /** @type {import("../skill").PassiveSkillDefinition} */
+  export default {
+      id: "attackPower",
+      sc: {
+          getconditions: "#attack.damage >= 30",
+          effects: { percent: { str: "v.powerp" } }
+      }
+  }
+  ```
+* **アクティブスキルの場合**:
+  ```javascript
+  /** @type {import("../skill").ActiveSkillDefinition} */
+  export default {
+      id: "windstep",
+      sc: {
+          getconditions: "#status.agi >= 50"
+      },
+      execute(player, skillVar, context) {
+          // player. や context. の後で自動的に補完が効くようになります
+          if (!context.needMp(player, 15)) return;
+      }
+  }
+  ```
+JSDoc を記載することで、`sc.` を入力した際のプロパティ候補や、`execute` 関数の引数である `player`（MinecraftのPlayerオブジェクト）、`context`（`needMp` や `needCool` 関数）の型補完が自動的に有効になります。
