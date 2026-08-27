@@ -7,6 +7,19 @@ import Buff from "../../buff.js"
 
 export default {
     id: "babble_shot",
+    name: "バブルショット",
+    description: "前方に泡を放つ",
+    getdescription: "INTを50以上にする",
+    sc: {
+        getconditions: [
+            {
+                type: "status",
+                operation: ">=",
+                value: "#status.int",
+                value2: 50
+            }
+        ]
+    },
     execute(player, skillVar, { needMp, needCool }) {
         if (!needMp(player, 15)) return;
         if (Shoot.fire(player, {

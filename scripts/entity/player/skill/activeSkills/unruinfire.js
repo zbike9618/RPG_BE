@@ -6,6 +6,19 @@ import entityPatch from "../../../entityPatch.js"
 
 export default {
     id: "unruinfire",
+    name: "不滅の炎",
+    description: "炎を飛ばす",
+    getdescription: "わかんね",
+    sc: {
+        getconditions: [
+            {
+                type: "status",
+                operation: ">=",
+                value: "#status.int",
+                value2: 50
+            }
+        ]
+    },
     execute(player, skillVar, { needMp, needCool }) {
         if (!needMp(player, 15)) return;
         if (Shoot.fire(player, {

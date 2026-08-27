@@ -13,14 +13,15 @@ system.runInterval(() => {
         const exp = scutil.get(player, "rpg.exp");
         const nxt_exp = getRequiredExp(lv);
         const money = scutil.get(player, "rpg.money");
-        const hpD = `\n§f(${hp}§7/${maxhp})`
+        const hpD = `§f(${hp}§7/${maxhp})`
         const lvD = `§fLv.§f${lv} (§a${exp}§7/${nxt_exp})§f`
-        const moneyD = `${money}§eG`
+        const moneyD = `§f${money}§eG`
         player.onScreenDisplay.setActionBar({
             rawtext: [{
-                text: `§l${getEmpty(50)}${lvD}${getEmpty(41 - (money.toString().length * 2) - (exp.toString().length + nxt_exp.toString().length + lv.toString().length) * 2)}${moneyD}${hpD} `
+                text: `§l${getEmpty(33)}${lvD}\n${hpD}${getEmpty(53 - (hp.toString().length + maxhp.toString().length))}${moneyD}`
             }]
         })
+
     }
 })
 function getEmpty(c) {

@@ -3,6 +3,19 @@ import Interval from "../../../interval.js"
 
 export default {
     id: "windstep",
+    name: "ウィンドステップ",
+    description: "スピードを一定秒間上昇させる",
+    getdescription: "AGIを50以上にする",
+    sc: {
+        getconditions: [
+            {
+                type: "status",
+                operation: ">=",
+                value: "#status.agi",
+                value2: 50
+            }
+        ]
+    },
     execute(player, skillVar, { needMp, needCool }) {
         if (Buff.getList(player).some(b => b.id === "windstep")) return;
         if (!needMp(player, 15)) return;
