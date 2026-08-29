@@ -7,6 +7,7 @@ export default {
     name: "ウィンドステップ",
     description: "スピードを一定秒間上昇させる",
     getdescription: "AGIを50以上にする",
+    element: "風",
     sc: {
         getconditions: "#status.agi >= 50"
     },

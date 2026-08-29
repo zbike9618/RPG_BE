@@ -24,9 +24,19 @@ export default class SkillSystem {
                 str = str.replace(new RegExp(`v\\.${k}`, "g"), String(v));
             }
         }
-        // キル統計の置換 (#kill_total, #kill.minecraft:zombie など)
+        // キル統計の置換 (個別キル数を優先)
+        str = str.replace(/#kill_count/g, () => {
+            if (skillVar && skillVar.kill_count !== undefined) {
+                return String(skillVar.kill_count);
+            }
+            return String(KillTracker.getTotal(player));
+        });
         str = str.replace(/#kill_total/g, () => String(KillTracker.getTotal(player)));
         str = str.replace(/#kill\.([a-zA-Z0-9_:]+)/g, (match, p1) => {
+            const cleanMobId = p1.replace(/:/g, "_");
+            if (skillVar && skillVar[`kill_${cleanMobId}`] !== undefined) {
+                return String(skillVar[`kill_${cleanMobId}`]);
+            }
             return String(KillTracker.getById(player, p1));
         });
 
@@ -87,8 +97,8 @@ export default class SkillSystem {
                 case "!=": if (leftVal === rightVal) return false; break;
                 case ">=": if (leftVal < rightVal) return false; break;
                 case "<=": if (leftVal > rightVal) return false; break;
-                case ">":  if (leftVal <= rightVal) return false; break;
-                case "<":  if (leftVal >= rightVal) return false; break;
+                case ">": if (leftVal <= rightVal) return false; break;
+                case "<": if (leftVal >= rightVal) return false; break;
             }
         }
         return true;
@@ -103,7 +113,7 @@ export default class SkillSystem {
     static isTriggerRelevant(conditions, eventType) {
         if (!conditions) return false;
         const condList = Array.isArray(conditions) ? conditions : [conditions];
-        
+
         for (const cond of condList) {
             if (typeof cond === "string") {
                 if (eventType === "status" && cond.includes("#status")) return true;
@@ -177,8 +187,8 @@ export default class SkillSystem {
                     case "==": if (!(finalA === finalB)) return false; break;
                     case ">=": if (!(finalA >= finalB)) return false; break;
                     case "<=": if (!(finalA <= finalB)) return false; break;
-                    case ">":  if (!(finalA >  finalB)) return false; break;
-                    case "<":  if (!(finalA <  finalB)) return false; break;
+                    case ">": if (!(finalA > finalB)) return false; break;
+                    case "<": if (!(finalA < finalB)) return false; break;
                 }
             }
         }
@@ -192,6 +202,32 @@ export default class SkillSystem {
      * @param {Record<string, any>} context イベント時の情報
      */
     static trigger(player, eventType, context = {}) {
+        // --- キルイベント時：スキル個別のキルカウンターを加算 ---
+        if (eventType === "kill") {
+            const mobId = context.target;
+            for (const [sId, sData] of Object.entries(skillData)) {
+                const getCond = sData.sc?.getconditions;
+                const levels = sData.level || [];
+                const currentVar = skill.get(player, sId) || {};
+                const stage = currentVar.stage || 0;
+                const evoCond = levels[stage]?.evoconditions;
+
+                const hasKillCond = (getCond && this.isTriggerRelevant(getCond, "kill")) ||
+                    (evoCond && this.isTriggerRelevant(evoCond, "kill"));
+
+                if (hasKillCond) {
+                    const mySkillVar = skill.get(player, sId) || {};
+                    mySkillVar.kill_count = (mySkillVar.kill_count || 0) + 1;
+
+                    if (mobId) {
+                        const cleanMobId = mobId.replace(/:/g, "_");
+                        mySkillVar[`kill_${cleanMobId}`] = (mySkillVar[`kill_${cleanMobId}`] || 0) + 1;
+                    }
+                    skill.add(player, sId, mySkillVar); // 保存
+                }
+            }
+        }
+
         for (const [sId, sData] of Object.entries(skillData)) {
             // --- 1. 未習得の場合：習得(getconditions)チェック ---
             if (!skill.have(player, sId)) {
@@ -202,7 +238,7 @@ export default class SkillSystem {
                         if (this.checkConditions(player, getCond, context, {})) {
                             // 習得初期化
                             const initialVar = sData.variable ? { ...sData.variable } : {};
-                            
+
                             // レベル配列があれば、最初の段階(index 0)からスタートする
                             let displayName = sData.name;
                             if (sData.level && sData.level.length > 0) {
@@ -212,28 +248,28 @@ export default class SkillSystem {
                                     displayName = `${sData.name} ${sData.level[0].name}`;
                                 }
                             }
-                            
+
                             skill.add(player, sId, initialVar);
                             player.sendMessage(`§e[Skill] スキル『${displayName}』を習得した！`);
                         }
                     }
                 }
-            } 
+            }
             // --- 2. 習得済みの場合：レベルアップ（進化）＆発動チェック ---
             else {
                 let mySkillVar = skill.get(player, sId) || {};
-                
+
                 // 【進化チェック】
                 const levels = sData.level;
                 if (levels && levels.length > 0) {
                     const stage = mySkillVar.stage !== undefined ? mySkillVar.stage : 0;
                     const currentLvlData = levels[stage];
-                    
+
                     // 現在の段階の evo (進化条件) をチェックして、満たせば次の段階へ進む
                     if (currentLvlData && currentLvlData.evoconditions) {
                         const evoCond = currentLvlData.evoconditions;
                         const hasRelevantTrigger = this.isTriggerRelevant(evoCond, eventType);
-                        
+
                         if (hasRelevantTrigger) {
                             if (this.checkConditions(player, evoCond, context, mySkillVar)) {
                                 const nextStage = stage + 1;
@@ -242,7 +278,7 @@ export default class SkillSystem {
                                     mySkillVar.stage = nextStage;
                                     // 変数を上書き
                                     Object.assign(mySkillVar, nextLvlData.variable || {});
-                                    
+
                                     skill.add(player, sId, mySkillVar); // セーブ
                                     const nextName = nextLvlData.name ? ` ${nextLvlData.name}` : "";
                                     player.sendMessage(`§a[Skill] スキル『${sData.name}${nextName}』に成長した！`);
@@ -254,6 +290,16 @@ export default class SkillSystem {
 
                 // 【発動チェック】セットされているスキルのみ発動する
                 if (!skill.isSet(player, sId)) continue;
+
+                // --- イベント別特化コールバック関数の実行 ---
+                if (typeof sData[eventType] === "function") {
+                    try {
+                        sData[eventType](player, context, mySkillVar);
+                        skill.add(player, sId, mySkillVar);
+                    } catch (e) {
+                        console.error(`[Skill System] Error in callback '${eventType}' for skill '${sId}':`, e);
+                    }
+                }
 
                 // tickIntervalのチェック (常時発動型 / status時)
                 if (sData.sc?.tickInterval) {
@@ -311,7 +357,7 @@ export default class SkillSystem {
                     if (isPassive) {
                         // パッシブスキル: hp/mp の add/set のみ 非可逆で直接適用する
                         // str 等の add は calcPassiveBonus で処理するためここでは除外
-                        
+
                         // 従来の result.status.add
                         const hpMpAdds = (result?.status?.add || []).filter(a => a.type === "hp" || a.type === "mp");
                         if (hpMpAdds.length > 0) {
@@ -342,7 +388,7 @@ export default class SkillSystem {
                         // イベント発動型スキル: 全ての result / effects / アクションを適用する
                         if (result) this.executeResult(player, result, mySkillVar);
                         if (effects) this.executeResult(player, { effects }, mySkillVar);
-                        
+
                         if (actions.commands || actions.message || actions.potion || actions.script) {
                             this.executeActions(player, actions, mySkillVar);
                         }
@@ -366,8 +412,20 @@ export default class SkillSystem {
                 res = res.replace(new RegExp(`v\\.${k}`, "g"), String(v));
             }
         }
+        res = res.replace(/#kill_count/g, () => {
+            if (skillVar && skillVar.kill_count !== undefined) {
+                return String(skillVar.kill_count);
+            }
+            return String(KillTracker.getTotal(player));
+        });
         res = res.replace(/#kill_total/g, () => String(KillTracker.getTotal(player)));
-        res = res.replace(/#kill\.([a-zA-Z0-9_:]+)/g, (match, p1) => String(KillTracker.getById(player, p1)));
+        res = res.replace(/#kill\.([a-zA-Z0-9_:]+)/g, (match, p1) => {
+            const cleanMobId = p1.replace(/:/g, "_");
+            if (skillVar && skillVar[`kill_${cleanMobId}`] !== undefined) {
+                return String(skillVar[`kill_${cleanMobId}`]);
+            }
+            return String(KillTracker.getById(player, p1));
+        });
         res = res.replace(/#status\.([a-zA-Z0-9_]+)/g, (match, p1) => {
             const val = util.score.get(player, `rpg.${p1}_do`) ?? util.score.get(player, `rpg.${p1}_save`) ?? util.score.get(player, `rpg.${p1}`) ?? 0;
             return String(val);

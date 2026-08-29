@@ -4,6 +4,8 @@ import babble_shot from "./babble_shot.js";
 import windstep from "./windstep.js";
 import paralyze from "./paralyze.js";
 import unruinfire from "./unruinfire.js";
+import tenjoutenge from "./tenjoutenge.js";
+import spinattack from "./spinattack.js";
 
 const activeSkills = {
     fireball,
@@ -11,7 +13,9 @@ const activeSkills = {
     babble_shot,
     windstep,
     paralyze,
-    unruinfire
+    unruinfire,
+    tenjoutenge,
+    spinattack
 };
 
 export default activeSkills;

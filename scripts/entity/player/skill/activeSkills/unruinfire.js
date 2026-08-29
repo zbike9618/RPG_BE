@@ -10,6 +10,7 @@ export default {
     name: "不滅の炎",
     description: "炎を飛ばす",
     getdescription: "わかんね",
+    element: "炎",
     sc: {
         getconditions: "#status.int >= 50"
     },
@@ -38,11 +39,11 @@ projectileHit.emit("unruinfire", async (projectile, ev) => {
     const dim = projectile.dimension;
     const pos = projectile.location;
     for (let i = 0; i < 50; i++) {
-        util.expandParticle(dim, pos, 20, 3, "minecraft:mobflame_single")
+        util.expandParticle(dim, pos, 20, 1, "minecraft:mobflame_single")
         util.getEntities(dim, pos, 4, null, {
             excludeIds: [owner?.id, projectile.id]
         }).forEach(entity => {
-            entityPatch.damage(entity, 0, { reference: "rpg.int_do * 0.3", damagerId: owner?.id, damageType: "magic" });
+            entityPatch.damage(entity, 0, { reference: "rpg.int_do * 0.3", damagerId: owner?.id, damageType: "magic", element: "炎" });
             entityPatch.fire(entity, 1000, { damage: 10, damagerId: owner?.id });
         })
         dim.playSound("mob.blaze.shoot", pos, { volume: 10 })

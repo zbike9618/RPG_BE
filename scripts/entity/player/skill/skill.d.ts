@@ -71,6 +71,13 @@ export interface PassiveSkillDefinition {
     variable?: Record<string, any>;
     level?: SkillLevelDefinition[];
     sc: SkillScriptContext;
+    weaponTags?: string[];
+
+    // Callbacks
+    death?(player: Player, context: Record<string, any>, skillVar: Record<string, any>): void;
+    attack?(player: Player, context: Record<string, any>, skillVar: Record<string, any>): void;
+    kill?(player: Player, context: Record<string, any>, skillVar: Record<string, any>): void;
+    status?(player: Player, context: Record<string, any>, skillVar: Record<string, any>): void;
 }
 
 export interface ActiveSkillExecuteContext {
@@ -84,9 +91,11 @@ export interface ActiveSkillDefinition {
     description: string;
     getdescription?: string;
     type?: number;
+    element?: "無" | "炎" | "水" | "土" | "雷" | "悪" | "光" | "風";
     variable?: Record<string, any>;
     level?: SkillLevelDefinition[];
     sc: SkillScriptContext;
+    weaponTags?: string[];
     execute(
         player: Player,
         skillVar: Record<string, any>,

@@ -6,7 +6,7 @@ export default {
     getdescription: "MPREGENとHPREGENの合計が300以上",
     sc: {
         // トリガー間隔を1秒（20 ticks）にする
-        tickInterval: 20,
+        tickInterval: 1,
         // 簡易文字列式による条件
         conditions: "#status.mp >= 5 && #status.hp < #status.maxhp",
         effects: {

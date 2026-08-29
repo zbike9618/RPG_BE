@@ -11,6 +11,7 @@ export default {
     name: "ファイアボール",
     description: "前方に火球を放つ",
     getdescription: "INTを50以上にする",
+    element: "炎",
     sc: {
         getconditions: "#status.int >= 50"
     },
@@ -44,7 +45,7 @@ projectileHit.emit("fireball", (projectile, ev) => {
     util.getEntities(dim, pos, 2, null, {
         excludeIds: [owner?.id, projectile.id]
     }).forEach(entity => {
-        entityPatch.damage(entity, 0, { reference: "rpg.int_do * 1.3", damagerId: owner?.id, damageType: "magic" });
+        entityPatch.damage(entity, 0, { reference: "rpg.int_do * 1.3", damagerId: owner?.id, damageType: "magic", element: "炎" });
         entityPatch.fire(entity, 5, { damage: 3, damagerId: owner?.id });
     })
 })

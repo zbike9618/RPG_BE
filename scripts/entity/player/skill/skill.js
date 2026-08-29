@@ -121,6 +121,15 @@ export default class {
                 return "§c[Skill] 既に別のスロットにセットされています。";
             }
 
+            // 装備制限チェック
+            if (sData.weaponTags) {
+                const itemTags = item.getTags();
+                const canEquip = sData.weaponTags.some(tag => itemTags.includes(tag));
+                if (!canEquip) {
+                    return `§c[Skill] このスキルは対応した武器（${sData.weaponTags.map(t => t.replace("rpg.", "")).join(", ")}）にしか装備できません。`;
+                }
+            }
+
             itemSet[slotIndex] = skillId;
             item.setDynamicProperty("rpg:skills", JSON.stringify(itemSet));
             container.setItem(player.selectedSlotIndex, item);

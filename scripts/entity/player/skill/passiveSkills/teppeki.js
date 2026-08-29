@@ -1,31 +1,31 @@
 /** @type {import("../skill").PassiveSkillDefinition} */
 export default {
-    id: "attackPower",
-    name: "攻撃強化",
+    id: "teppeki",
+    name: "鉄壁",
     getdescription: "30ダメージ以上を与える",
-    description: "攻撃力を上昇させる",
+    description: "防御力を上昇させる",
     variable: {
-        "powerp": 0
+        "shieldp": 0
     },
     level: [
         {
             name: "小",
             variable: {
-                "powerp": 5
+                "shieldp": 5
             },
             evoconditions: "#attack.damage >= 50"
         },
         {
             name: "中",
             variable: {
-                "powerp": 10,
+                "shieldp": 10,
             },
             evoconditions: "#attack.damage >= 70"
         },
         {
             name: "大",
             variable: {
-                "powerp": 15
+                "shieldp": 15
             }
         }
     ],
@@ -33,7 +33,7 @@ export default {
         conditions: "",
         effects: {
             percent: {
-                str: "v.powerp"
+                def: "v.shieldp"
             }
         },
         getconditions: "#attack.damage >= 30"

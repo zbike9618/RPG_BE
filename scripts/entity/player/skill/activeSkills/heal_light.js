@@ -7,6 +7,7 @@ export default {
     name: "ヒールライト",
     description: "自身のHPを回復する",
     getdescription: "INTを30以上にする",
+    element: "光",
     sc: {
         getconditions: "#status.int >= 30"
     },

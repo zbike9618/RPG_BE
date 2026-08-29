@@ -1,4 +1,5 @@
 import util from "../../../../util.js"
+import entityPatch from "../../../entityPatch.js";
 import Buff from "../../buff.js"
 
 /** @type {import("../skill").ActiveSkillDefinition} */
@@ -7,6 +8,7 @@ export default {
     name: "パラライズ",
     description: "周りの敵を麻痴させる",
     getdescription: "AGIを50以上にする",
+    element: "雷",
     sc: {
         getconditions: "#status.agi >= 50"
     },
@@ -18,8 +20,7 @@ export default {
             excludeIds: [player.id]
         });
         entities.forEach(entity => {
-            Buff.add(entity, "paralyze", "agi", -99, "percent", 10);
-            util.expandParticle(entity.dimension, entity.location, 5, 1, "rpg:lightning");
+            entityPatch.paralyze(entity, 10, 99);
         });
     }
 }

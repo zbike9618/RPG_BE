@@ -135,11 +135,23 @@ function showSkillPickerForItem(player, weaponData, slotIndex) {
         } else {
             // セット
             const selectedId = activeIds[res.selection];
+            const sData = skillData[selectedId];
             // 重複チェック
             if (itemSet.includes(selectedId) && itemSet.indexOf(selectedId) !== slotIndex) {
                 player.sendMessage("§c[Skill] 別のスロットに既にセットされています。");
             } else {
-                itemSet[slotIndex] = selectedId;
+                // 装備制限チェック
+                let canEquip = true;
+                if (sData && sData.weaponTags) {
+                    const itemTags = currentItem.getTags();
+                    canEquip = sData.weaponTags.some(tag => itemTags.includes(tag));
+                }
+
+                if (!canEquip) {
+                    player.sendMessage(`§c[Skill] このスキルは刀剣（rpg.sword）にしか装備できません。`);
+                } else {
+                    itemSet[slotIndex] = selectedId;
+                }
             }
         }
 

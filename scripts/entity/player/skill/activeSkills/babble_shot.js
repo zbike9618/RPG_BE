@@ -11,6 +11,7 @@ export default {
     name: "バブルショット",
     description: "前方に泡を放つ",
     getdescription: "INTを50以上にする",
+    element: "水",
     sc: {
         getconditions: "#status.int >= 50"
     },
@@ -43,7 +44,7 @@ projectileHit.emit("babble_shot", (projectile, ev) => {
     util.getEntities(dim, pos, 2, null, {
         excludeIds: [owner?.id, projectile.id]
     }).forEach(entity => {
-        entityPatch.damage(entity, 0, { reference: "rpg.int_do * 1.2", damagerId: owner?.id, damageType: "magic" });
+        entityPatch.damage(entity, 0, { reference: "rpg.int_do * 1.2", damagerId: owner?.id, damageType: "magic", element: "水" });
         Buff.add(entity, "babble_shot", "str", -30, "percent", 5);
         Buff.add(entity, "babble_shot", "int", -30, "percent", 5);
     })
