@@ -12,8 +12,8 @@ export default {
     sc: {
         getconditions: "#status.agi >= 50"
     },
-    execute(player, skillVar, { needMp, needCool }) {
-        if (!needMp(player, 15)) return;
+    execute(player, skillVar, { checkCost }) {
+        if (!checkCost(15, 0)) return;
         const entities = player.dimension.getEntities({
             location: player.location,
             maxDistance: 10,

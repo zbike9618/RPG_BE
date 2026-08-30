@@ -11,8 +11,8 @@ export default {
     sc: {
         getconditions: "#status.int >= 30"
     },
-    execute(player, skillVar, { needMp, needCool }) {
-        if (!needMp(player, 10)) return;
+    execute(player, skillVar, { checkCost }) {
+        if (!checkCost(10, 0)) return;
         const currentHp = scutil.get(player, "rpg.hp") || 20;
         const maxHp = scutil.get(player, "rpg.maxhp_do") || 20;
 

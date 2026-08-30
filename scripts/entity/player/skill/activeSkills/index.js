@@ -6,6 +6,7 @@ import paralyze from "./paralyze.js";
 import unruinfire from "./unruinfire.js";
 import tenjoutenge from "./tenjoutenge.js";
 import spinattack from "./spinattack.js";
+import renzokutuki from "./renzokutuki.js";
 
 const activeSkills = {
     fireball,
@@ -15,7 +16,8 @@ const activeSkills = {
     paralyze,
     unruinfire,
     tenjoutenge,
-    spinattack
+    spinattack,
+    renzokutuki
 };
 
 export default activeSkills;

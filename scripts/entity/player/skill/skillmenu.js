@@ -148,7 +148,14 @@ function showSkillPickerForItem(player, weaponData, slotIndex) {
                 }
 
                 if (!canEquip) {
-                    player.sendMessage(`§c[Skill] このスキルは刀剣（rpg.sword）にしか装備できません。`);
+                    const readableTags = sData.weaponTags.map(tag => {
+                        if (tag === "rpg.sword") return "刀剣";
+                        if (tag === "rpg.spear") return "槍";
+                        if (tag === "rpg.axe") return "斧";
+                        if (tag === "rpg.dagger") return "ダガー";
+                        return tag;
+                    }).join("、");
+                    player.sendMessage(`§c[Skill] このスキルは${readableTags}専用です。`);
                 } else {
                     itemSet[slotIndex] = selectedId;
                 }

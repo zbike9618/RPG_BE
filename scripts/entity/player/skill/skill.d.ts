@@ -81,8 +81,7 @@ export interface PassiveSkillDefinition {
 }
 
 export interface ActiveSkillExecuteContext {
-    needMp: (player: Player, amount: number) => boolean;
-    needCool: (tick: number) => boolean;
+    checkCost: (mpAmount: number, cooldownTicks: number) => boolean;
 }
 
 export interface ActiveSkillDefinition {

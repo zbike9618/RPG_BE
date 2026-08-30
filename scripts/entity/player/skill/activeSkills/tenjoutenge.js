@@ -11,9 +11,8 @@ export default {
     sc: {
         getconditions: "#status.str >= 100 && #status.vit >= 100"
     },
-    execute(player, skillVar, { needMp, needCool }) {
-        if (!needMp(player, 30)) return;
-        if (!needCool(600)) return; // 30秒のクールタイム
+    execute(player, skillVar, { checkCost }) {
+        if (!checkCost(30, 600)) return;
 
         player.sendMessage("§c天上天下唯我独尊...");
         player.dimension.spawnParticle("rpg:impact", player.location);

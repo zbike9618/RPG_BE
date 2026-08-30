@@ -23,8 +23,7 @@ export default class ActiveSkillSystem {
         const skill = activeSkills[skillId];
         if (skill) {
             skill.execute(player, skillVar, { 
-                needMp, 
-                needCool: (tick) => needCool(player, skillId, tick) 
+                checkCost: (mp, cool) => checkCost(player, skillId, mp, cool)
             });
         } else {
             console.warn(`Skill ${skillId} not found in activeSkills`);
@@ -32,40 +31,41 @@ export default class ActiveSkillSystem {
     }
 }
 
-function needMp(player, amount) {
-    const currentMp = scutil.get(player, "rpg.mp");
-    if (currentMp < amount) {
+/**
+ * MPとクールタイムのチェックおよび消費を一度に行う
+ * @param {import("@minecraft/server").Player} player 
+ * @param {string} skillId 
+ * @param {number} mpAmount 
+ * @param {number} cooldownTicks 
+ * @returns {boolean} 両方満たしていれば消費してtrue、そうでなければfalse
+ */
+function checkCost(player, skillId, mpAmount, cooldownTicks) {
+    // 1. MPチェック
+    const currentMp = scutil.get(player, "rpg.mp") ?? 0;
+    if (currentMp < mpAmount) {
         player.sendMessage("§cMPが足りません");
         return false;
     }
-    const nextMp = Math.max(0, currentMp - amount);
-    scutil.set(player, "rpg.mp", nextMp);
-    return true;
-}
 
-/**
- * クールタイムを確認・設定する
- * @param {import("@minecraft/server").Player} player 
- * @param {string} skillId 
- * @param {number} tick 
- * @returns {boolean} 実行可能ならtrue
- */
-function needCool(player, skillId, tick) {
+    // 2. クールタイムチェック
     const memoryId = `cool_${skillId}`;
     const currentTime = system.currentTick;
-    const endTime = Memory.get(player, memoryId);
-
+    const endTime = Memory.get(player, memoryId) || 0;
     if (endTime > currentTime) {
-        const remaining = Math.ceil((endTime - currentTime) / 20);
-        player.onScreenDisplay.setActionBar(`§cクールタイム中 (${remaining}s)`);
         return false;
     }
 
-    if (!Memory.has(player, memoryId)) {
-        if (!Memory.use(player, memoryId)) {
-            return true; // メモリ不足時はクールタイムなしで実行許可
-        }
+    // 消費とクールタイム設定の実行
+    if (mpAmount > 0) {
+        scutil.set(player, "rpg.mp", Math.max(0, currentMp - mpAmount));
     }
-    Memory.set(player, memoryId, currentTime + tick);
+
+    if (cooldownTicks > 0) {
+        if (!Memory.has(player, memoryId)) {
+            Memory.use(player, memoryId);
+        }
+        Memory.set(player, memoryId, currentTime + cooldownTicks);
+    }
+
     return true;
 }

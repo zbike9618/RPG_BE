@@ -15,9 +15,8 @@ export default {
     sc: {
         getconditions: "#status.int >= 50"
     },
-    execute(player, skillVar, { needMp, needCool }) {
-        if (!needCool(20)) return;
-        if (!needMp(player, 15)) return;
+    execute(player, skillVar, { checkCost }) {
+        if (!checkCost(15, 20)) return;
         if (Shoot.fire(player, {
             customId: "fireball",
             speed: 3.0,
